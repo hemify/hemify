@@ -2,7 +2,6 @@
 pragma solidity 0.8.19;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /**
 * @title ITreasury
@@ -11,6 +10,15 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 */
 
 interface ITreasury {
+    event ETHDeposit(uint256 indexed amount);
+    event ETHTransfer(address indexed to, uint256 indexed amount);
+    event TokenDeposit(IERC20 indexed token, uint256 indexed amount);
+    event TokenTransfer(
+        IERC20 indexed token,
+        address indexed to,
+        uint256 indexed amount
+    );
+
     function depositETH() external payable returns (bool);
     function withdrawETH() external returns (bool);
     function sendETHPayment(address to, uint256 amount) external returns (bool);
