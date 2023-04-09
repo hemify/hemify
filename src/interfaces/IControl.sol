@@ -24,6 +24,8 @@ interface IControl {
     event NFTSupportedForSwap(IERC721 indexed nft);
     event NFTRevokedForSwap(IERC721 indexed nft);
 
+    error ZeroAddress();
+
     function supportAuctionNFT(IERC721 nft) external;
     function revokeAuctionNFT(IERC721 nft) external;
 
