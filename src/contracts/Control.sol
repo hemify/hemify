@@ -7,6 +7,16 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
+/**
+* @title Control
+* @author fps (@0xfps).
+* @dev  Control contract.
+*       A contract for setting and revoking support for a particular NFT collection,
+*       allowing NFTs from that collection to be listable for auctions, and also,
+*       for setting and revoking support for a particular IERC20 tokens, making them
+*       acceptable as a means of making bids for listed auctions.
+*/
+
 contract Control is IControl, Ownable2Step {
     mapping(IERC20 => bool) public supportedTokens;
     mapping(IERC721 => bool) public supportedAuctionNFTs;

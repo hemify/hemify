@@ -29,7 +29,11 @@ interface ITreasury {
 
     function sendETHPayment(address to, uint256 amount) external returns (bool);
 
-    function depositToken(IERC20 token, uint256 amount) external returns (bool);
+    function depositToken(
+        address from,
+        IERC20 token,
+        uint256 amount
+    ) external returns (bool);
 
     function sendTokenPayment(
         IERC20 token,
