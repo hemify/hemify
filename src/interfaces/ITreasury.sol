@@ -23,25 +23,25 @@ interface ITreasury {
         uint256 indexed amount
     );
 
-    function depositETH() external payable returns (bool);
+    function deposit() external payable returns (bool);
 
-    function withdrawETH() external returns (bool);
+    function sendPayment(address to, uint256 amount) external returns (bool);
 
-    function sendETHPayment(address to, uint256 amount) external returns (bool);
+    function withdraw() external returns (bool);
 
-    function depositToken(
+    function deposit(
         address from,
         IERC20 token,
         uint256 amount
     ) external returns (bool);
 
-    function sendTokenPayment(
+    function sendPayment(
         IERC20 token,
         address to,
         uint256 amount
     ) external returns (bool);
 
-    function withdrawToken(
+    function withdraw(
         IERC20 token,
         uint256 amount
     ) external returns (bool);

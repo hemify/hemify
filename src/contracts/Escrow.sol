@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 import {IEscrow} from "../interfaces/IEscrow.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import {ITreasury} from "../interfaces/ITreasury.sol";
 
 import {AuctionContractInfo} from "./utils/AuctionContractInfo.sol";
 
@@ -15,8 +16,21 @@ import {AuctionContractInfo} from "./utils/AuctionContractInfo.sol";
 */
 
 contract Escrow is IEscrow, IERC721Receiver, AuctionContractInfo {
-    constructor(address _auctionContract)
-    AuctionContractInfo(_auctionContract) {}
+    ITreasury private treasury;
+
+    constructor(address _auctionContract, address _treasury)
+    AuctionContractInfo(_auctionContract) {
+        if (_treasury == address(0)) revert ZeroAddress();
+        treasury = ITreasury(_treasury);
+    }
+
+    receive() external payable {
+        treasury.deposit{value: msg.value}();
+    }
+
+    fallback() external payable {
+        treasury.deposit{value: msg.value}();
+    }
 
     function depositNFT(
         address from,
@@ -44,7 +58,7 @@ contract Escrow is IEscrow, IERC721Receiver, AuctionContractInfo {
         IERC721 token,
         uint256 id,
         address to
-    ) external returns (bool) {
+    ) external calledByAuction returns (bool) {
         if (token.ownerOf(id) != address(this)) revert TokenNotOwned();
         if (to == address(0)) revert ZeroAddress();
 
