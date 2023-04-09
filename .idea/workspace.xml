@@ -5,12 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3944fe08-65ba-4f03-9463-766a2133401a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/test.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/contracts/Control.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/IAuction.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IAuction.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/interfaces/IControl.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IControl.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/IEscrow.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IEscrow.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/ITreasury.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/ITreasury.sol" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,6 +33,47 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RunManager">
+    <configuration name="Control.revokeToken" type="SolidityConfigurationType" factoryName="Solidity" temporary="true" show_console_on_std_err="false" show_console_on_std_out="false">
+      <module name="bab" />
+      <option name="VMParameters" />
+      <option name="allowRunningInParallel" value="false" />
+      <option name="alternativeJrePath" />
+      <option name="alternativeJrePathEnabled" value="false" />
+      <option name="classpathModifications">
+        <list />
+      </option>
+      <option name="envs">
+        <map />
+      </option>
+      <option name="passParentEnvs" value="true" />
+      <option name="programParameters" />
+      <option name="projectPathOnTarget" />
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <option name="workingDirectory" value="" />
+      <option name="contractName" value="Control" />
+      <option name="contractFile" value="$PROJECT_DIR$/src/contracts/Control.sol" />
+      <option name="functionName" value="revokeToken" />
+      <option name="vmParameters" />
+      <option name="programParameters" />
+      <option name="workingDirectory" />
+      <option name="envs">
+        <map />
+      </option>
+      <option name="ajreEnabled" value="false" />
+      <option name="ajre" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Solidity.Control.revokeToken" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
