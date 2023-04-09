@@ -6,7 +6,8 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 /**
 * @title IEscrow
 * @author fps (@0xfps).
-* @dev Escrow contract interface.
+* @dev  Escrow contract interface.
+*       This interface controls the `Escrow` contract.
 */
 
 interface IEscrow {
