@@ -6,10 +6,14 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /**
 * @title ITreasury
 * @author fps (@0xfps).
-* @dev Treasury contract interface.
+* @dev  Treasury contract interface.
+*       This interface controls the `Treasury` contract.
 */
 
 interface ITreasury {
+    /// @dev Events for different actions.
+    /// @notice amount  Amount deposited or transferred.
+    /// @notice token   IERC20 token deposited or transferred.
     event ETHDeposit(uint256 indexed amount);
     event ETHTransfer(address indexed to, uint256 indexed amount);
     event TokenDeposit(IERC20 indexed token, uint256 indexed amount);
@@ -20,7 +24,9 @@ interface ITreasury {
     );
 
     function depositETH() external payable returns (bool);
+
     function withdrawETH() external returns (bool);
+
     function sendETHPayment(address to, uint256 amount) external returns (bool);
 
     function depositToken(IERC20 token, uint256 amount) external returns (bool);
