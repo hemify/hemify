@@ -16,6 +16,7 @@ interface ITreasury {
     /// @notice token   IERC20 token deposited or transferred.
     event ETHDeposit(uint256 indexed amount);
     event ETHTransfer(address indexed to, uint256 indexed amount);
+
     event TokenDeposit(IERC20 indexed token, uint256 indexed amount);
     event TokenTransfer(
         IERC20 indexed token,
@@ -23,21 +24,31 @@ interface ITreasury {
         uint256 indexed amount
     );
 
-    function depositETH() external payable returns (bool);
+    event ETHWithdraw(uint256 indexed amount);
+    event TokenWithdraw(
+        IERC20 indexed token,
+        uint256 indexed amount
+    );
 
-    function withdrawETH() external returns (bool);
+    function deposit() external payable returns (bool);
 
-    function sendETHPayment(address to, uint256 amount) external returns (bool);
+    function sendPayment(address to, uint256 amount) external returns (bool);
 
-    function depositToken(IERC20 token, uint256 amount) external returns (bool);
+    function withdraw() external returns (bool);
 
-    function sendTokenPayment(
+    function deposit(
+        address from,
+        IERC20 token,
+        uint256 amount
+    ) external returns (bool);
+
+    function sendPayment(
         IERC20 token,
         address to,
         uint256 amount
     ) external returns (bool);
 
-    function withdrawToken(
+    function withdraw(
         IERC20 token,
         uint256 amount
     ) external returns (bool);

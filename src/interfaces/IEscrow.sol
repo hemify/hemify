@@ -11,7 +11,13 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 */
 
 interface IEscrow {
+
+    error NotOwnerOrAuthorized();
+    error TokenNotTransferred();
+    error TokenNotOwned();
+
     function depositNFT(
+        address from,
         IERC721 token,
         uint256 id
     ) external returns (bool);
