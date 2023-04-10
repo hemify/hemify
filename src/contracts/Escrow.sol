@@ -6,7 +6,7 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import {ITreasury} from "../interfaces/ITreasury.sol";
 
-import {AuctionContractInfo} from "./utils/AuctionContractInfo.sol";
+import {Gated} from "./utils/Gated.sol";
 
 /**
 * @title Escrow
@@ -15,11 +15,10 @@ import {AuctionContractInfo} from "./utils/AuctionContractInfo.sol";
 *       A contract to hold NFTs during auction duration.
 */
 
-contract Escrow is IEscrow, IERC721Receiver, AuctionContractInfo {
+contract Escrow is IEscrow, IERC721Receiver, Gated {
     ITreasury private treasury;
 
-    constructor(address _auctionContract, address _treasury)
-    AuctionContractInfo(_auctionContract) {
+    constructor(address _treasury) {
         if (_treasury == address(0)) revert ZeroAddress();
         treasury = ITreasury(_treasury);
     }
@@ -36,7 +35,8 @@ contract Escrow is IEscrow, IERC721Receiver, AuctionContractInfo {
         address from,
         IERC721 token,
         uint256 id
-    ) external calledByAuction returns (bool) {
+    ) external onlyAllowed returns (bool) {
+        // Checks of IERC721 being supported are done in the Auction.
         address nftOwner = token.ownerOf(id);
 
         if (
@@ -45,8 +45,8 @@ contract Escrow is IEscrow, IERC721Receiver, AuctionContractInfo {
             (!token.isApprovedForAll(nftOwner, from))
         ) revert NotOwnerOrAuthorized();
 
-        /// @dev    Caller must set isApprovedForAll() for this contract
-        ///         to true.
+        /// @dev    Caller must set isApprovedForAll() for this call
+        ///         to be successful.
         token.safeTransferFrom(from, address(this), id);
 
         assert(token.ownerOf(id) == address(this));
@@ -58,7 +58,7 @@ contract Escrow is IEscrow, IERC721Receiver, AuctionContractInfo {
         IERC721 token,
         uint256 id,
         address to
-    ) external calledByAuction returns (bool) {
+    ) external onlyAllowed returns (bool) {
         if (token.ownerOf(id) != address(this)) revert TokenNotOwned();
         if (to == address(0)) revert ZeroAddress();
 

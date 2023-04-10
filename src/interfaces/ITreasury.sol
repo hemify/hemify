@@ -16,10 +16,17 @@ interface ITreasury {
     /// @notice token   IERC20 token deposited or transferred.
     event ETHDeposit(uint256 indexed amount);
     event ETHTransfer(address indexed to, uint256 indexed amount);
+
     event TokenDeposit(IERC20 indexed token, uint256 indexed amount);
     event TokenTransfer(
         IERC20 indexed token,
         address indexed to,
+        uint256 indexed amount
+    );
+
+    event ETHWithdraw(uint256 indexed amount);
+    event TokenWithdraw(
+        IERC20 indexed token,
         uint256 indexed amount
     );
 
