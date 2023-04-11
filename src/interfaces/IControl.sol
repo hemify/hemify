@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.19;
 
+import {AggregatorV3Interface}
+    from "chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
@@ -29,7 +31,7 @@ interface IControl {
     function supportAuctionNFT(IERC721 nft) external;
     function revokeAuctionNFT(IERC721 nft) external;
 
-    function supportToken(IERC20 token) external;
+    function supportToken(IERC20 token, AggregatorV3Interface agg) external;
     function revokeToken(IERC20 token) external;
 
     function supportSwapNFT(IERC721 nft) external;

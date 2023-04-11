@@ -33,38 +33,42 @@ contract Escrow is IEscrow, IERC721Receiver, Gated {
 
     function depositNFT(
         address from,
-        IERC721 token,
+        IERC721 nft,
         uint256 id
     ) external onlyAllowed returns (bool) {
         // Checks of IERC721 being supported are done in the Auction.
-        address nftOwner = token.ownerOf(id);
+        address nftOwner = nft.ownerOf(id);
 
         if (
             (nftOwner != from) &&
-            (token.getApproved(id) != from) &&
-            (!token.isApprovedForAll(nftOwner, from))
+            (nft.getApproved(id) != from) &&
+            (!nft.isApprovedForAll(nftOwner, from))
         ) revert NotOwnerOrAuthorized();
 
         /// @dev    Caller must set isApprovedForAll() for this call
         ///         to be successful.
-        token.safeTransferFrom(from, address(this), id);
+        nft.safeTransferFrom(from, address(this), id);
 
-        assert(token.ownerOf(id) == address(this));
+        assert(nft.ownerOf(id) == address(this));
+
+        emit NFTDeposit(nft, id);
 
         return true;
     }
 
     function sendNFT(
-        IERC721 token,
+        IERC721 nft,
         uint256 id,
         address to
     ) external onlyAllowed returns (bool) {
-        if (token.ownerOf(id) != address(this)) revert TokenNotOwned();
+        if (nft.ownerOf(id) != address(this)) revert TokenNotOwned();
         if (to == address(0)) revert ZeroAddress();
 
-        token.safeTransferFrom(address(this), to, id);
+        nft.safeTransferFrom(address(this), to, id);
 
-        assert(token.ownerOf(id) == to);
+        assert(nft.ownerOf(id) == to);
+
+        emit NFTSent(nft, id, to);
 
         return true;
     }
