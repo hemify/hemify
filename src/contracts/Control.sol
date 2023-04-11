@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.19;
 
+import {AggregatorV3Interface}
+    from "chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import {IControl} from "../interfaces/IControl.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -21,6 +23,7 @@ contract Control is IControl, Ownable2Step {
     mapping(IERC20 => bool) public supportedTokens;
     mapping(IERC721 => bool) public supportedAuctionNFTs;
     mapping(IERC721 => bool) public supportedSwapNFTs;
+    mapping(IERC20 => AggregatorV3Interface) public aggregators;
 
     function supportAuctionNFT(IERC721 nft) public onlyOwner {
         if (address(nft) == address(0)) revert ZeroAddress();
@@ -36,16 +39,23 @@ contract Control is IControl, Ownable2Step {
         emit NFTRevokedForAuction(nft);
     }
 
-    function supportToken(IERC20 token) public onlyOwner {
+    function supportToken(IERC20 token, AggregatorV3Interface agg) public onlyOwner {
         if (address(token) == address(0)) revert ZeroAddress();
+        if (address(agg) == address(0)) revert ZeroAddress();
 
-        if (!supportedTokens[token]) supportedTokens[token] = true;
+        if (!supportedTokens[token]) {
+            supportedTokens[token] = true;
+            aggregators[token] = agg;
+        }
 
         emit TokenSupportedForAuction(token);
     }
 
     function revokeToken(IERC20 token) public onlyOwner {
-        if (supportedTokens[token]) supportedTokens[token] = false;
+        if (supportedTokens[token]) {
+            supportedTokens[token] = false;
+            delete aggregators[token];
+        }
 
         emit TokenRevokedForAuction(token);
     }

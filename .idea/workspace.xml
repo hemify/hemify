@@ -5,12 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3944fe08-65ba-4f03-9463-766a2133401a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Deployment" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Deployment.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/contracts/utils/SimpleMultiSig.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Deployment" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/contracts/Control.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/Control.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/contracts/Escrow.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/Escrow.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/contracts/Treasury.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/Treasury.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/contracts/utils/AuctionContractInfo.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/utils/Gated.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/ITreasury.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/ITreasury.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IControl.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IControl.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IEscrow.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IEscrow.sol" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
