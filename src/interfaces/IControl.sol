@@ -36,4 +36,8 @@ interface IControl {
 
     function supportSwapNFT(IERC721 nft) external;
     function revokeSwapNFT(IERC721 nft) external;
+
+    function isSupported(IERC20 token) external view returns (bool);
+    function isSupportedForAuction(IERC721 nft) external view returns (bool);
+    function isSupportedForSwap(IERC721 nft) external view returns (bool);
 }
