@@ -8,7 +8,6 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 import {Gated} from "./utils/Gated.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {SimpleMultiSig} from "./utils/SimpleMultiSig.sol";
 
 /**
 * @title Treasury
@@ -19,14 +18,11 @@ import {SimpleMultiSig} from "./utils/SimpleMultiSig.sol";
 *       `allow`ed by the contract.
 */
 
-contract Treasury is ITreasury, Gated, ReentrancyGuard, SimpleMultiSig {
+contract Treasury is ITreasury, Gated, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    error LowBalance();
-    error NotSent();
-
     constructor(address[] memory _addresses)
-    SimpleMultiSig(_addresses) {}
+    Gated(_addresses) {}
 
     receive() external payable {
         emit ETHDeposit(msg.value);
@@ -93,6 +89,7 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard, SimpleMultiSig {
         uint256 amount
     ) external nonReentrant onlyAllowed returns (bool) {
         if (to == address(0)) revert ZeroAddress();
+        if (to == address(this)) revert TokenAlreadyOwned();
         if (amount > token.balanceOf(address(this))) revert LowBalance();
 
         token.safeTransfer(to, amount);

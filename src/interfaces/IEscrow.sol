@@ -20,6 +20,7 @@ interface IEscrow {
 
     error NotOwnerOrAuthorized();
     error TokenNotOwned();
+    error TokenAlreadyOwned();
 
     function depositNFT(
         address from,

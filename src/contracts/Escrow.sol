@@ -7,6 +7,7 @@ import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Recei
 import {ITreasury} from "../interfaces/ITreasury.sol";
 
 import {Gated} from "./utils/Gated.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
 * @title Escrow
@@ -15,10 +16,11 @@ import {Gated} from "./utils/Gated.sol";
 *       A contract to hold NFTs during auction duration.
 */
 
-contract Escrow is IEscrow, IERC721Receiver, Gated {
+contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
     ITreasury private treasury;
 
-    constructor(address _treasury) {
+    constructor(address _treasury, address[] memory _addresses)
+    Gated(_addresses) {
         if (_treasury == address(0)) revert ZeroAddress();
         treasury = ITreasury(_treasury);
     }
@@ -60,9 +62,10 @@ contract Escrow is IEscrow, IERC721Receiver, Gated {
         IERC721 nft,
         uint256 id,
         address to
-    ) external onlyAllowed returns (bool) {
+    ) external nonReentrant onlyAllowed returns (bool) {
         if (nft.ownerOf(id) != address(this)) revert TokenNotOwned();
         if (to == address(0)) revert ZeroAddress();
+        if (to == address(this)) revert TokenAlreadyOwned();
 
         nft.safeTransferFrom(address(this), to, id);
 

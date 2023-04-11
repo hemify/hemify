@@ -30,6 +30,10 @@ interface ITreasury {
         uint256 indexed amount
     );
 
+    error LowBalance();
+    error NotSent();
+    error TokenAlreadyOwned();
+
     function deposit() external payable returns (bool);
 
     function sendPayment(address to, uint256 amount) external returns (bool);
