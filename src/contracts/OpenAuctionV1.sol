@@ -23,7 +23,7 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1 {
     IEscrow escrow;
     ITreasury treasury;
 
-    uint256 private index;
+    uint256 private _index;
     // mapping(auctionId => Auction) internal auctions;
     mapping(uint256 => Auction) internal auctions;
     // mapping(auctionId => bidder => bid) internal ethBids;
@@ -57,13 +57,64 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1 {
 
     // Start here.
     function list(
-        IERC721 nft,
-        uint256 id,
-        uint256 minPrice,
-        uint128 auctionStart,
-        uint128 auctionEnd
+        IERC721 _nft,
+        uint256 _id,
+        uint256 _minPrice,
+        uint128 _auctionStart,
+        uint128 _auctionEnd
     ) public returns (uint256, bool) {
+        address nftOwner = _nft.ownerOf(_id);
+        if (
+            (nftOwner != msg.sender) &&
+            (_nft.getApproved(_id) != msg.sender) &&
+            (!_nft.isApprovedForAll(nftOwner, msg.sender))
+        ) revert NotOwnerOrAuthorized();
+
+        if (_minPrice == 0) revert ZeroPrice();
+
+        if (block.timestamp > _auctionStart) revert StartTimeInThePast();
+        if (_auctionStart > _auctionEnd) revert EndTimeLesserThanStartTime();
+
+        if (!control.isSupportedForAuction(_nft)) revert NFTNotSupported();
+
+        // Starting with index 0.
+        uint256 index = _index;
+        ++_index;
+
         Auction memory auction;
-        return(0, true);
+
+        auction.nft = _nft;
+        auction.minPrice = _minPrice;
+        auction.auctionStart = _auctionStart;
+        auction.auctionEnd = _auctionEnd;
+
+        auctions[index] = auction;
+
+        bool success = escrow.depositNFT(msg.sender, _nft, _id);
+        if (!success) revert NotSent();
+
+        return(index, success);
+    }
+
+    function bid(uint256 auctionId) public payable returns (bool) {
+        if (!_canBid(auctionId)) revert BidRejcted();
+
+        Auction memory _auction = auctions[auctionId];
+        if (msg.value < _auction.minPrice) revert BidLowerThanMinPrice();
+
+        // Start!
+
+        return(_canBid(auctionId));
+    }
+
+    function _canBid(uint256 _auctionId) private view returns (bool) {
+        Auction memory _auction = auctions[_auctionId];
+
+        if (_auction.state == AuctionState.RESOLVED) return false;
+        else if (_auction.state == AuctionState.LIVE) return true;
+        else if (_auction.auctionStart <= block.timestamp) {
+            auctions[_auctionId].state == AuctionState.LIVE;
+            return true;
+        } else return false;
     }
 }
