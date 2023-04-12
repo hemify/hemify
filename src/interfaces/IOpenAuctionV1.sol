@@ -96,17 +96,25 @@ interface IOpenAuctionV1 {
     */
     event Resolved(IERC721 indexed nft, uint256 indexed id);
 
+    error BidLowerThanMinPrice();
+    error BidRejcted();
+    error EndTimeLesserThanStartTime();
+    error NFTNotSupported();
+    error NotOwnerOrAuthorized();
+    error NotSent();
+    error StartTimeInThePast();
     error ZeroAddress();
+    error ZeroPrice();
 
     /**
     * @notice All functions here are documented in the `Auction` contract.
     */
     function list(
-        IERC721 nft,
-        uint256 id,
-        uint256 minPrice,
-        uint128 auctionStart,
-        uint128 auctionEnd
+        IERC721 _nft,
+        uint256 _id,
+        uint256 _minPrice,
+        uint128 _auctionStart,
+        uint128 _auctionEnd
     ) external returns (uint256, bool);
 
     function bid(uint256 auctionId) external payable returns (bool);
