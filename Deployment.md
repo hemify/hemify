@@ -1,12 +1,15 @@
-# Dependent
-- Treasury.
-    - allow() Auction.
-    - allow() Escrow [After Escrow deploy].
-- Escrow.
-    - allow() Auction.
+# Deployments
+- Deploy Treasury
+- Deploy Escrow
+- Deploy Auction
 
-- Auction.
-    - Set `treasury` and `escrow`
+-> Treasury.
+  - allow() Auction.
+  - allow() Escrow.
+
+-> Escrow.
+  - allow() Auction.
+
 
 # Independent
 - Control

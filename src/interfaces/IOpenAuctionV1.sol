@@ -5,13 +5,13 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /**
-* @title IAuction
+* @title IOpenAuctionV1
 * @author fps (@0xfps).
-* @dev  Auction contract interface.
+* @dev  Open Auction V1 contract interface.
 *       This interface controls the basic functionalities on the `OpenAuction` contract.
 */
 
-interface IAuction {
+interface IOpenAuctionV1 {
     /**
     * @dev  Specifies the current state of the auction.
     *       DORMANT:   Auction has not yet begun.
@@ -52,8 +52,6 @@ interface IAuction {
         uint256 highestBid;
         uint128 auctionStart;
         uint128 auctionEnd;
-        mapping(address => uint256) ethBids;
-        mapping(address => mapping(IERC20 => uint256)) tokenBids;
         address winner;
         IERC20 highestBidToken;
     }
@@ -98,6 +96,8 @@ interface IAuction {
     */
     event Resolved(IERC721 indexed nft, uint256 indexed id);
 
+    error ZeroAddress();
+
     /**
     * @notice All functions here are documented in the `Auction` contract.
     */
@@ -135,12 +135,5 @@ interface IAuction {
         uint256 highestBid
     );
 
-    function getAuction(uint256 auctionId) external view returns (
-        AuctionState state,
-        IERC721 nft,
-        uint256 id,
-        uint256 minPrice,
-        uint128 auctionStart,
-        uint128 auctionEnd
-    );
+    function getAuction(uint256 auctionId) external view returns (Auction memory);
 }

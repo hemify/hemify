@@ -2,6 +2,7 @@
 pragma solidity 0.8.19;
 
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
+import {SimpleMultiSig} from "./SimpleMultiSig.sol";
 
 /**
 * @title Gated
@@ -10,23 +11,26 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 *       Controls which addresses can call which contracts.
 */
 
-abstract contract Gated is Ownable2Step {
+abstract contract Gated is Ownable2Step, SimpleMultiSig {
     mapping(address => bool) private allowed;
 
     error ZeroAddress();
     error NotAllowed();
+
+    constructor(address[] memory _addresses)
+    SimpleMultiSig(_addresses) {}
 
     modifier onlyAllowed() {
         if (!allowed[msg.sender]) revert NotAllowed();
         _;
     }
 
-    function allow(address _address) public onlyOwner {
+    function allow(address _address) public allSigned onlyOwner {
         if (_address == address(0)) revert ZeroAddress();
         allowed[_address] = true;
     }
 
-    function disAllow(address _address) public onlyOwner {
+    function disAllow(address _address) public allSigned onlyOwner {
         allowed[_address] = false;
     }
 }
