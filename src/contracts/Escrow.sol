@@ -6,7 +6,7 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import {ITreasury} from "../interfaces/ITreasury.sol";
 
-import {Gated} from "./utils/Gated.sol";
+import {Gated, SimpleMultiSig} from "./utils/Gated.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
@@ -20,7 +20,7 @@ contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
     ITreasury private treasury;
 
     constructor(address _treasury, address[] memory _addresses)
-    Gated(_addresses) {
+    SimpleMultiSig(_addresses) {
         if (_treasury == address(0)) revert ZeroAddress();
         treasury = ITreasury(_treasury);
     }

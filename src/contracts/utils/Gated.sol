@@ -17,9 +17,6 @@ abstract contract Gated is Ownable2Step, SimpleMultiSig {
     error ZeroAddress();
     error NotAllowed();
 
-    constructor(address[] memory _addresses)
-    SimpleMultiSig(_addresses) {}
-
     modifier onlyAllowed() {
         if (!allowed[msg.sender]) revert NotAllowed();
         _;

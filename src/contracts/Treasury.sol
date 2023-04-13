@@ -6,7 +6,7 @@ import {ITreasury} from "../interfaces/ITreasury.sol";
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {Gated} from "./utils/Gated.sol";
+import {Gated, SimpleMultiSig} from "./utils/Gated.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
@@ -22,7 +22,7 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     constructor(address[] memory _addresses)
-    Gated(_addresses) {}
+    SimpleMultiSig(_addresses) {}
 
     receive() external payable {
         emit ETHDeposit(msg.value);
