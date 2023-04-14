@@ -33,7 +33,7 @@ interface IOpenAuctionV1 {
     * @param nft                Listed NFT.
     * @param id                 NFT id.
     * @param minPrice           Least price acceptable for the NFT in ETH.
-    * @param highestBid         Current highest bid amount.
+    * @param highestBid         Current highest bid amount in ETH (Token bids are converted to ETH).
     * @param auctionStart       Start time of auction.
     * @param auctionEnd         End time of auction.
     * @param ethBids            Submitted ETH bids for NFT.
@@ -49,11 +49,13 @@ interface IOpenAuctionV1 {
         IERC721 nft;
         uint256 id;
         uint256 minPrice;
-        uint256 highestBid;
+        uint256 highestBid; // Always an ETH value.
         uint128 auctionStart;
         uint128 auctionEnd;
-        address winner;
+        address auctionOwner;
+        address auctionWinner;
         IERC20 highestBidToken;
+        uint256 highestBidTokenAmount;
     }
 
     /**
@@ -96,13 +98,18 @@ interface IOpenAuctionV1 {
     */
     event Resolved(IERC721 indexed nft, uint256 indexed id);
 
+    error AuctionResolved();
     error BidLowerThanMinPrice();
     error BidRejcted();
     error EndTimeLesserThanStartTime();
+    error FundsNotSent();
+    error LowBid();
     error NFTNotSupported();
+    error NotLive();
     error NotOwnerOrAuthorized();
     error NotSent();
     error StartTimeInThePast();
+    error TokenNotSupported();
     error ZeroAddress();
     error ZeroPrice();
 
@@ -140,7 +147,8 @@ interface IOpenAuctionV1 {
     function getHighestBid(uint256 auctionId) external view returns (
         bool highestBidIsInETH,
         IERC20 highestBidToken,
-        uint256 highestBid
+        uint256 highestBid,
+        uint256 highestBidTokenAmount
     );
 
     function getAuction(uint256 auctionId) external view returns (Auction memory);
