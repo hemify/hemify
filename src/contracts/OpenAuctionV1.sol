@@ -11,14 +11,16 @@ import {IOpenAuctionV1} from "../interfaces/IOpenAuctionV1.sol";
 import {ITreasury} from "../interfaces/ITreasury.sol";
 
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {Taxes} from "./utils/Taxes.sol";
 
 /**
 * @title OpenAuctionV1.
 * @author fps (@0xfps).
-* @dev  Core auction contract.
+* @dev  Core Auction Contract.
+* @custom:version 0.0.1.
 */
 
-abstract contract OpenAuctionV1 is IOpenAuctionV1 {
+abstract contract OpenAuctionV1 is IOpenAuctionV1, Taxes {
     IControl control;
     IEscrow escrow;
     ITreasury treasury;
@@ -27,7 +29,7 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1 {
     // mapping(auctionId => Auction) internal auctions;
     mapping(uint256 => Auction) internal auctions;
     // mapping(auctionId => bidder => bid) internal ethBids;
-    mapping(uint256 => mapping(address => uint256 )) internal ethBids;
+    mapping(uint256 => mapping(address => uint256)) internal ethBids;
     // mapping(auctionId => bidder => bidToken => bid) internal tokenBids;
     mapping(uint256 => mapping(address => mapping(IERC20 => uint256))) internal tokenBids;
 
@@ -55,7 +57,6 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1 {
         treasury.deposit{value: msg.value}();
     }
 
-    // Start here.
     function list(
         IERC721 _nft,
         uint256 _id,
@@ -81,14 +82,15 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1 {
         uint256 index = _index;
         ++_index;
 
-        Auction memory auction;
+        Auction memory _auction;
 
-        auction.nft = _nft;
-        auction.minPrice = _minPrice;
-        auction.auctionStart = _auctionStart;
-        auction.auctionEnd = _auctionEnd;
+        _auction.nft = _nft;
+        _auction.minPrice = _minPrice;
+        _auction.auctionStart = _auctionStart;
+        _auction.auctionEnd = _auctionEnd;
+        _auction.auctionOwner = msg.sender;
 
-        auctions[index] = auction;
+        auctions[index] = _auction;
 
         bool success = escrow.depositNFT(msg.sender, _nft, _id);
         if (!success) revert NotSent();
@@ -96,21 +98,36 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1 {
         return(index, success);
     }
 
-    function bid(uint256 auctionId) public payable returns (bool) {
-        if (!_canBid(auctionId)) revert BidRejcted();
-
+    function getHighestBid(uint256 auctionId) external view returns (
+        bool highestBidIsInETH,
+        IERC20 highestBidToken,
+        uint256 highestBid,
+        uint256 highestBidTokenAmount
+    ) {
+        /// @dev Allowed for all live auctions.
         Auction memory _auction = auctions[auctionId];
-        if (msg.value < _auction.minPrice) revert BidLowerThanMinPrice();
+        if (_auction.state != AuctionState.LIVE) revert NotLive();
 
-        // Start!
+        (highestBidIsInETH, highestBidToken, highestBid, highestBidTokenAmount) =
+        (
+            _auction.highestBidIsInETH,
+            _auction.highestBidToken,
+            _auction.highestBid,
+            _auction.highestBidTokenAmount
+        );
+    }
 
-        return(_canBid(auctionId));
+    function getAuction(uint256 auctionId) external view returns (Auction memory) {
+        // For all auctions, no matter what.
+        Auction memory _auction = auctions[auctionId];
+        return _auction;
     }
 
     function _canBid(uint256 _auctionId) private view returns (bool) {
         Auction memory _auction = auctions[_auctionId];
 
         if (_auction.state == AuctionState.RESOLVED) return false;
+        else if (_auction.auctionEnd <= block.timestamp) return false;
         else if (_auction.state == AuctionState.LIVE) return true;
         else if (_auction.auctionStart <= block.timestamp) {
             auctions[_auctionId].state == AuctionState.LIVE;
