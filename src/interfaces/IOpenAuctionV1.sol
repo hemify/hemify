@@ -17,11 +17,13 @@ interface IOpenAuctionV1 {
     *       DORMANT:   Auction has not yet begun.
     *       LIVE:      Auction has started.
     *       RESOLED:   Auction has ended and resolved.
+    *       CLAIMED:   Winner has taken their owned NFT.
     */
     enum AuctionState {
         DORMANT,
         LIVE,
-        RESOLVED
+        RESOLVED,
+        CLAIMED
     }
 
     /**
@@ -93,18 +95,23 @@ interface IOpenAuctionV1 {
 
     /**
     * @dev Emitted when an auction is resolved.
-    * @param nft        NFT address.
     * @param id         NFT id.
     */
-    event Resolved(IERC721 indexed nft, uint256 indexed id);
+    event Resolved(uint256 indexed id);
 
+    error AuctionNotLive();
     error AuctionResolved();
+    error AuctionStillLive();
+    error AuctionStillLiveOrClaimed();
     error BidRejcted();
+    error CantCancel();
+    error CantCancelHighestBid();
     error EndTimeLesserThanStartTime();
     error FundsNotSent();
     error LowBid();
-    error NFTNotSupported();
     error NotLive();
+    error NotAuctionOwner();
+    error NotAuctionWinner();
     error NotOwnerOrAuthorized();
     error NotSent();
     error OwnerBid();
@@ -112,6 +119,7 @@ interface IOpenAuctionV1 {
     error TokenNotSupported();
     error ZeroAddress();
     error ZeroPrice();
+    error ZeroRefund();
 
     /**
     * @notice All functions here are documented in the `Auction` contract.
@@ -136,9 +144,9 @@ interface IOpenAuctionV1 {
 
     function cancelBid(uint256 auctionId, IERC20 token) external returns (bool);
 
-    function claim(uint256 auctionId) external returns (bool);
-
     function resolve(uint256 auctionId) external returns (bool);
+
+    function claim(uint256 auctionId) external returns (bool);
 
     function recoverLostBid(uint256 auctionId) external returns (bool);
 

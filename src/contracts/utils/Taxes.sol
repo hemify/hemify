@@ -10,8 +10,8 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 */
 
 abstract contract Taxes {
-    function tax(uint256 amount) public pure returns (uint256) {
+    function afterTax(uint256 amount) public pure returns (uint256) {
         /// @dev 1% tax.
-        return (amount / 100);
+        return amount - (amount / 100);
     }
 }

@@ -99,6 +99,8 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         bool success = escrow.depositNFT(msg.sender, _nft, _id);
         if (!success) revert NotSent();
 
+        emit Listed(msg.sender, _nft, _id, _auctionEnd);
+
         return(index, success);
     }
 
@@ -132,10 +134,12 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
 
         auctions[auctionId] = _auction;
 
-        ethBids[auctionId][msg.sender] = msg.value;
+        ethBids[auctionId][msg.sender] += msg.value;
 
         bool sent = treasury.deposit{value: msg.value}();
         if (!sent) revert NotSent();
+
+        emit Bid(auctionId, msg.value);
 
         return sent;
     }
@@ -181,9 +185,150 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
 
         auctions[auctionId] = _auction;
 
-        tokenBids[auctionId][msg.sender][token] = ethEquivalent;
+        tokenBids[auctionId][msg.sender][token] += amount;
 
         bool sent = treasury.deposit(msg.sender, token, amount);
+        if (!sent) revert NotSent();
+
+        emit Bid(auctionId, token, amount);
+
+        return sent;
+    }
+
+    /// @notice Allows caller to cancel and reclaim his bid funds.
+    ///         Caller must not be the current highest bidder, and auction must
+    ///         be LIVE.
+    function cancelBid(uint256 auctionId) external returns (bool) {
+        if (!_canBid(auctionId)) revert CantCancel();
+
+        Auction memory _auction = auctions[auctionId];
+        if (_auction.auctionWinner == msg.sender) revert CantCancelHighestBid();
+
+        uint256 refund = ethBids[auctionId][msg.sender];
+        if (refund == 0) revert ZeroRefund();
+
+        delete ethBids[auctionId][msg.sender];
+
+        bool sent = treasury.sendPayment(msg.sender, refund);
+        if (!sent) revert NotSent();
+
+        return sent;
+    }
+
+    /// @notice Allows caller to cancel and reclaim his bid token funds.
+    ///         Caller must not be the current highest bidder, and auction must
+    ///         be LIVE.
+    function cancelBid(uint256 auctionId, IERC20 token) external returns (bool) {
+        if (!_canBid(auctionId)) revert CantCancel();
+
+        Auction memory _auction = auctions[auctionId];
+        if (_auction.auctionWinner == msg.sender) revert CantCancelHighestBid();
+
+        uint256 refund = tokenBids[auctionId][msg.sender][token];
+        if (refund == 0) revert ZeroRefund();
+
+        delete tokenBids[auctionId][msg.sender][token];
+
+        bool sent = treasury.sendPayment(token, msg.sender, refund);
+        if (!sent) revert NotSent();
+
+        return sent;
+    }
+
+    function resolve(uint256 auctionId) external returns (bool) {
+        Auction memory _auction = auctions[auctionId];
+        if (msg.sender != _auction.auctionOwner) revert NotAuctionOwner();
+        if (_auction.state != AuctionState.LIVE) revert AuctionNotLive();
+
+        _auction.state = AuctionState.RESOLVED;
+        bool sent;
+
+        /// @dev `highestBidIsInETH` is `true`.
+        if (_auction.highestBidIsInETH) {
+            uint256 payment = _auction.highestBid;
+            address _auctionOwner = _auction.auctionOwner;
+            address _auctionWinner = _auction.auctionWinner;
+
+            auctions[auctionId] = _auction;
+
+            ethBids[auctionId][_auctionWinner] -= payment;
+
+            sent = treasury.sendPayment(_auctionOwner, afterTax(payment));
+            if (!sent) revert NotSent();
+
+            emit Resolved(auctionId);
+        }
+
+        /// @dev `highestBidIsInETH` is `false`.
+        if (!_auction.highestBidIsInETH) {
+            IERC20 paymentToken = _auction.highestBidToken;
+            uint256 payment = _auction.highestBidTokenAmount;
+            address _auctionOwner = _auction.auctionOwner;
+            address _auctionWinner = _auction.auctionWinner;
+
+            auctions[auctionId] = _auction;
+
+            tokenBids[auctionId][_auctionWinner][paymentToken] -= payment;
+
+            sent = treasury.sendPayment(paymentToken, _auctionOwner, afterTax(payment));
+            if (!sent) revert NotSent();
+
+            emit Resolved(auctionId);
+        }
+
+        return sent;
+    }
+
+    function claim(uint256 auctionId) external returns (bool) {
+        Auction memory _auction = auctions[auctionId];
+        if (msg.sender != _auction.auctionWinner) revert NotAuctionWinner();
+        if (_auction.state != AuctionState.RESOLVED) revert AuctionStillLiveOrClaimed();
+
+        _auction.state = AuctionState.CLAIMED;
+
+        IERC721 _nft = _auction.nft;
+        uint256 _id = _auction.id;
+
+        auctions[auctionId] = _auction;
+
+        bool sent = escrow.sendNFT(_nft, _id, msg.sender);
+        if (!sent) revert NotSent();
+
+        return sent;
+    }
+
+    /// @notice Taxes aren't taken for losers.
+    function recoverLostBid(uint256 auctionId) external returns (bool) {
+        Auction memory _auction = auctions[auctionId];
+        if (
+            _auction.state == AuctionState.DORMANT ||
+            _auction.state == AuctionState.LIVE
+        ) revert AuctionStillLive();
+
+        uint256 recovery = ethBids[auctionId][msg.sender];
+        if (recovery == 0) revert ZeroRefund();
+
+        delete ethBids[auctionId][msg.sender];
+
+        bool sent = treasury.sendPayment(msg.sender, recovery);
+        if (!sent) revert NotSent();
+
+        return sent;
+    }
+
+    function recoverLostBid(uint256 auctionId, IERC20 token) external returns (bool) {
+        Auction memory _auction = auctions[auctionId];
+        if (
+            _auction.state == AuctionState.DORMANT ||
+            _auction.state == AuctionState.LIVE
+        ) revert AuctionStillLive();
+
+        uint256 recovery = tokenBids[auctionId][msg.sender][token];
+        if (recovery == 0) revert ZeroRefund();
+
+        delete tokenBids[auctionId][msg.sender][token];
+
+        bool sent = treasury.sendPayment(token, msg.sender, recovery);
         if (!sent) revert NotSent();
 
         return sent;
