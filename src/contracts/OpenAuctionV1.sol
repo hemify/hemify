@@ -363,7 +363,10 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
     function _canBid(uint256 _auctionId) private returns (bool) {
         Auction memory _auction = auctions[_auctionId];
 
-        if (_auction.state == AuctionState.RESOLVED) return false;
+        if (
+            (_auction.state == AuctionState.RESOLVED) ||
+            (_auction.state == AuctionState.CLAIMED)
+        ) return false;
         else if (_auction.auctionOwner == address(0)) return false;
         else if (block.timestamp >= _auction.auctionEnd) return false;
         else if (_auction.state == AuctionState.LIVE) return true;
