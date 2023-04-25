@@ -9,7 +9,7 @@ pragma solidity 0.8.19;
 */
 
 contract SimpleMultiSig {
-    uint8 private immutable SIZE; // Max 5.
+    uint8 private immutable SIZE;
     uint8 private signCount;
     mapping(address => bool) private signers;
     mapping(address => bool) private signed;
@@ -19,7 +19,7 @@ contract SimpleMultiSig {
 
     constructor(address[] memory _addresses) {
         uint8 len = uint8(_addresses.length);
-        if ((len < 2) || (len > 5)) revert();
+        if ((len < 5)) revert();
 
         SIZE = len;
 

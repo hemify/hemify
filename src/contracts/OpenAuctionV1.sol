@@ -76,8 +76,6 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, Taxes {
         if (block.timestamp > _auctionStart) revert StartTimeInThePast();
         if (_auctionStart > _auctionEnd) revert EndTimeLesserThanStartTime();
 
-        if (!control.isSupportedForAuction(_nft)) revert NFTNotSupported();
-
         // Starting with index 0.
         uint256 index = _index;
         ++_index;
@@ -97,6 +95,10 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, Taxes {
 
         return(index, success);
     }
+
+    ///////////////////////////////////////////////////////////////////
+    //////////////////////  C O N T I N U E ! /////////////////////////
+    ///////////////////////////////////////////////////////////////////
 
     function getHighestBid(uint256 auctionId) external view returns (
         bool highestBidIsInETH,
