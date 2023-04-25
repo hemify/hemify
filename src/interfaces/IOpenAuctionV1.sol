@@ -99,7 +99,6 @@ interface IOpenAuctionV1 {
     event Resolved(IERC721 indexed nft, uint256 indexed id);
 
     error AuctionResolved();
-    error BidLowerThanMinPrice();
     error BidRejcted();
     error EndTimeLesserThanStartTime();
     error FundsNotSent();
@@ -108,6 +107,7 @@ interface IOpenAuctionV1 {
     error NotLive();
     error NotOwnerOrAuthorized();
     error NotSent();
+    error OwnerBid();
     error StartTimeInThePast();
     error TokenNotSupported();
     error ZeroAddress();

@@ -18,7 +18,7 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 */
 
 contract Control is IControl, Ownable2Step {
-    mapping(IERC20 => AggregatorV3Interface) public supportedTokens;
+    mapping(IERC20 => AggregatorV3Interface) private supportedTokens;
 
     function supportToken(IERC20 token, AggregatorV3Interface agg) public onlyOwner {
         if (address(token) == address(0)) revert ZeroAddress();
@@ -37,5 +37,10 @@ contract Control is IControl, Ownable2Step {
 
     function isSupported(IERC20 token) public view returns (bool) {
         return address(supportedTokens[token]) != address(0);
+    }
+
+    function getTokenAggregator(IERC20 token) external view returns (AggregatorV3Interface) {
+        if (!isSupported(token)) revert NotSupported();
+        return supportedTokens[token];
     }
 }

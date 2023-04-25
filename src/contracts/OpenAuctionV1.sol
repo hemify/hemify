@@ -102,9 +102,92 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return(index, success);
     }
 
-    ///////////////////////////////////////////////////////////////////
-    //////////////////////  C O N T I N U E ! /////////////////////////
-    ///////////////////////////////////////////////////////////////////
+    /// @notice Allows anyone to make an ETH bid on an existing auction.
+    ///         Auction must exist and will be LIVE.
+    ///         Bids must be higher than `minPrice` (for first bid) and
+    ///         `highestBid` (for subsequent bids).
+    ///         If the current ETH is > the highest bid, it will set
+    ///         `highestBidIsInETH` to true and set the `highestBidToken` to (0),
+    ///         and delete the `highestBidTokenAmount`.
+    ///         It doesn't delete or refund the previous highest bid from the mapping.
+    ///         The bidder of the previous highest bid can always cancel their bid.
+    function bid(uint256 auctionId) external payable returns (bool) {
+        /// @dev    Inexistent auctions will have `auctionEnd` as 0, which will return
+        ///         `false` by
+        ///         `else if (_auction.auctionOwner == address(0)) return false;`.
+        if (!_canBid(auctionId)) revert BidRejcted();
+
+        Auction memory _auction = auctions[auctionId];
+
+        if (msg.sender == _auction.auctionOwner) revert OwnerBid();
+        if ((msg.value < _auction.minPrice) || (msg.value <= _auction.highestBid))
+            revert LowBid();
+
+        /// @dev At this point, the `msg.value` is > the highest bid, and minPrice, and is in ETH.
+        _auction.highestBidIsInETH = true;
+        _auction.highestBid = msg.value;
+        _auction.auctionWinner = msg.sender;
+        delete _auction.highestBidToken;
+        delete _auction.highestBidTokenAmount;
+
+        auctions[auctionId] = _auction;
+
+        ethBids[auctionId][msg.sender] = msg.value;
+
+        bool sent = treasury.deposit{value: msg.value}();
+        if (!sent) revert NotSent();
+
+        return sent;
+    }
+
+    /// @notice Allows anyone to make a token bid on an existing auction.
+    ///         Auction must exist and will be LIVE.
+    ///         Tokens will only be approved tokens in `Control`.
+    ///         All token amount sent will be evaluated to their ETH worth at
+    ///         the time of bidding (and `bid()` logic runs).
+    ///         Bids must be higher than `minPrice` (for first bid) and
+    ///         `highestBid` (for subsequent bids).
+    ///         If the current ETH is > the highest bid, it will set
+    ///         `highestBidIsInETH` to false and set the `highestBidToken` to token,
+    ///         and set the `highestBidTokenAmount` to the amount of tokens sent.
+    ///         It doesn't delete or refund the previous highest bid from the mapping.
+    ///         The bidder of the previous highest bid can always cancel their bid.
+    function bid(uint256 auctionId, IERC20 token, uint256 amount)
+        external
+        returns (bool)
+    {
+        /// @dev    Inexistent auctions will have `auctionEnd` as 0, which will return
+        ///         `false` by
+        ///         `else if (_auction.auctionOwner == address(0)) return false;`.
+        if (!_canBid(auctionId)) revert BidRejcted();
+        if (!control.isSupported(token)) revert TokenNotSupported();
+
+        Auction memory _auction = auctions[auctionId];
+        if (msg.sender == _auction.auctionOwner) revert OwnerBid();
+
+        AggregatorV3Interface _agg = control.getTokenAggregator(token);
+
+        uint256 ethEquivalent = convertToETH(_agg, token, amount);
+        if ((ethEquivalent < _auction.minPrice) || (ethEquivalent <= _auction.highestBid))
+            revert LowBid();
+
+        /// @dev    At this point, the `ethEquivalent` is > the highest bid, and minPrice,
+        ///         and is in a known token.
+        _auction.highestBidIsInETH = false;
+        _auction.highestBid = ethEquivalent;
+        _auction.auctionWinner = msg.sender;
+        _auction.highestBidToken = token;
+        _auction.highestBidTokenAmount = amount;
+
+        auctions[auctionId] = _auction;
+
+        tokenBids[auctionId][msg.sender][token] = ethEquivalent;
+
+        bool sent = treasury.deposit(msg.sender, token, amount);
+        if (!sent) revert NotSent();
+
+        return sent;
+    }
 
     function getHighestBid(uint256 auctionId) external view returns (
         bool highestBidIsInETH,
@@ -136,6 +219,7 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         Auction memory _auction = auctions[_auctionId];
 
         if (_auction.state == AuctionState.RESOLVED) return false;
+        else if (_auction.auctionOwner == address(0)) return false;
         else if (block.timestamp >= _auction.auctionEnd) return false;
         else if (_auction.state == AuctionState.LIVE) return true;
         else if (block.timestamp >= _auction.auctionStart) {

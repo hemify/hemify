@@ -19,10 +19,12 @@ interface IControl {
     event TokenSupportedForAuction(IERC20 indexed token);
     event TokenRevokedForAuction(IERC20 indexed token);
 
+    error NotSupported();
     error ZeroAddress();
 
     function supportToken(IERC20 token, AggregatorV3Interface agg) external;
     function revokeToken(IERC20 token) external;
 
     function isSupported(IERC20 token) external view returns (bool);
+    function getTokenAggregator(IERC20 token) external view returns (AggregatorV3Interface);
 }
