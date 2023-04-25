@@ -15,14 +15,14 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 * @dev  Treasury contract.
 *       A contract to hold all tokens and ETH.
 *       Any contract can interact with this contract as long as it's been
-*       `allow`ed by the contract.
+*       `allow`ed by this contract.
 */
 
 contract Treasury is ITreasury, Gated, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     constructor(address[] memory _addresses)
-    SimpleMultiSig(_addresses) {}
+        SimpleMultiSig(_addresses) {}
 
     receive() external payable {
         emit ETHDeposit(msg.value);
@@ -38,10 +38,11 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
     }
 
     function sendPayment(address to, uint256 amount)
-    external
-    nonReentrant
-    onlyAllowed
-    returns (bool) {
+        external
+        nonReentrant
+        onlyAllowed
+        returns (bool)
+    {
         if (to == address(0)) revert ZeroAddress();
         if (amount > address(this).balance) revert LowBalance();
 
@@ -53,7 +54,6 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         return true;
     }
 
-    // Write a small 3/3 sig gate for this.
     function withdraw() public allSigned onlyOwner returns (bool) {
         uint256 amount = address(this).balance;
 
@@ -65,29 +65,31 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         return true;
     }
 
-    function deposit(
-        address from,
-        IERC20 token,
-        uint256 amount
-    ) external onlyAllowed returns (bool) {
-        // Checks of IERC20 being supported are done in the Auction.
+    function deposit(address from, IERC20 token, uint256 amount)
+        external
+        onlyAllowed
+        returns (bool)
+    {
+        /// @dev Checks of IERC20 being supported are done in the Auction.
         uint256 prevBal = token.balanceOf(address(this));
 
-        /// @dev Caller must approve Treasury address to move funds.
+        /// @dev    Caller must approve Treasury address to move funds
+        ///         via approve().
         token.safeTransferFrom(from, address(this), amount);
 
-        assert((token.balanceOf(address(this)) - prevBal) == amount);
+        assert((token.balanceOf(address(this)) - prevBal) >= amount);
 
         emit TokenDeposit(token, amount);
 
         return true;
     }
 
-    function sendPayment(
-        IERC20 token,
-        address to,
-        uint256 amount
-    ) external nonReentrant onlyAllowed returns (bool) {
+    function sendPayment(IERC20 token, address to, uint256 amount)
+        external
+        nonReentrant
+        onlyAllowed
+        returns (bool)
+    {
         if (to == address(0)) revert ZeroAddress();
         if (to == address(this)) revert TokenAlreadyOwned();
         if (amount > token.balanceOf(address(this))) revert LowBalance();
@@ -99,11 +101,12 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         return true;
     }
 
-    // Write a small 3/3 sig gate for this.
-    function withdraw(
-        IERC20 token,
-        uint256 amount
-    ) public allSigned onlyOwner returns (bool) {
+    function withdraw(IERC20 token, uint256 amount)
+        public
+        allSigned
+        onlyOwner
+        returns (bool)
+    {
         if (amount > token.balanceOf(address(this))) revert LowBalance();
 
         token.safeTransfer(owner(), amount);

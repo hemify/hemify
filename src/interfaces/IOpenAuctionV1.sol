@@ -17,29 +17,31 @@ interface IOpenAuctionV1 {
     *       DORMANT:   Auction has not yet begun.
     *       LIVE:      Auction has started.
     *       RESOLED:   Auction has ended and resolved.
+    *       CLAIMED:   Winner has taken their owned NFT.
     */
     enum AuctionState {
         DORMANT,
         LIVE,
-        RESOLVED
+        RESOLVED,
+        CLAIMED
     }
 
     /**
     * @dev Auction data. Each auction will have these.
-    * @param state              Auction state.
-    * @param highestBidIsInETH  `true` if the current highest bid is in ETH.
-    *                           `false` if the current highest bid is in
-    *                           IERC20 token.
-    * @param nft                Listed NFT.
-    * @param id                 NFT id.
-    * @param minPrice           Least price acceptable for the NFT in ETH.
-    * @param highestBid         Current highest bid amount in ETH (Token bids are converted to ETH).
-    * @param auctionStart       Start time of auction.
-    * @param auctionEnd         End time of auction.
-    * @param ethBids            Submitted ETH bids for NFT.
-    * @param tokenBids          Submitted IERC20 token bids for NFT.
-    * @param winner             Address with highest bid in ETH or IERC20 token.
-    * @param highestBidToken    IERC20 token bid currently as the highest bid.
+    * @param state                  Auction state.
+    * @param highestBidIsInETH      `true` if the current highest bid is in ETH.
+    *                               `false` if the current highest bid is in
+    *                               IERC20 token.
+    * @param nft                    Listed NFT.
+    * @param id                     NFT id.
+    * @param minPrice               Least price acceptable for the NFT in ETH.
+    * @param highestBid             Current highest bid amount in ETH (Token bids are converted to ETH).
+    * @param auctionStart           Start time of auction.
+    * @param auctionEnd             End time of auction.
+    * @param auctionOwner           Auction lister.
+    * @param auctionWinner          Current auction winner.
+    * @param highestBidToken        IERC20 token bid currently as the highest bid.
+    * @param highestBidTokenAmount  Literal token amount sent as bid.
     *
     * @notice `highestBidIsInETH` and `highestBidToken` must be set together.
     */
@@ -93,25 +95,31 @@ interface IOpenAuctionV1 {
 
     /**
     * @dev Emitted when an auction is resolved.
-    * @param nft        NFT address.
     * @param id         NFT id.
     */
-    event Resolved(IERC721 indexed nft, uint256 indexed id);
+    event Resolved(uint256 indexed id);
 
+    error AuctionNotLive();
     error AuctionResolved();
-    error BidLowerThanMinPrice();
+    error AuctionStillLive();
+    error AuctionStillLiveOrClaimed();
     error BidRejcted();
+    error CantCancel();
+    error CantCancelHighestBid();
     error EndTimeLesserThanStartTime();
     error FundsNotSent();
     error LowBid();
-    error NFTNotSupported();
     error NotLive();
+    error NotAuctionOwner();
+    error NotAuctionWinner();
     error NotOwnerOrAuthorized();
     error NotSent();
+    error OwnerBid();
     error StartTimeInThePast();
     error TokenNotSupported();
     error ZeroAddress();
     error ZeroPrice();
+    error ZeroRefund();
 
     /**
     * @notice All functions here are documented in the `Auction` contract.
@@ -122,23 +130,23 @@ interface IOpenAuctionV1 {
         uint256 _minPrice,
         uint128 _auctionStart,
         uint128 _auctionEnd
-    ) external returns (uint256, bool);
+    )
+        external
+        returns (uint256, bool);
 
     function bid(uint256 auctionId) external payable returns (bool);
 
-    function bid(
-        uint256 auctionId,
-        IERC20 token,
-        uint256 amount
-    ) external returns (bool);
+    function bid(uint256 auctionId, IERC20 token, uint256 amount)
+        external
+        returns (bool);
 
     function cancelBid(uint256 auctionId) external returns (bool);
 
     function cancelBid(uint256 auctionId, IERC20 token) external returns (bool);
 
-    function claim(uint256 auctionId) external returns (bool);
-
     function resolve(uint256 auctionId) external returns (bool);
+
+    function claim(uint256 auctionId) external returns (bool);
 
     function recoverLostBid(uint256 auctionId) external returns (bool);
 

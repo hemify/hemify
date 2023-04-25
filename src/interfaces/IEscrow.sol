@@ -22,15 +22,11 @@ interface IEscrow {
     error TokenNotOwned();
     error TokenAlreadyOwned();
 
-    function depositNFT(
-        address from,
-        IERC721 nft,
-        uint256 id
-    ) external returns (bool);
+    function depositNFT(address from, IERC721 nft, uint256 id)
+        external
+        returns (bool);
 
-    function sendNFT(
-        IERC721 nft,
-        uint256 id,
-        address to
-    ) external returns (bool);
+    function sendNFT(IERC721 nft, uint256 id, address to)
+        external
+        returns (bool);
 }
