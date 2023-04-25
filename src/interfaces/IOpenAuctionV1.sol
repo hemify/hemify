@@ -100,14 +100,12 @@ interface IOpenAuctionV1 {
     event Resolved(uint256 indexed id);
 
     error AuctionNotLive();
-    error AuctionResolved();
     error AuctionStillLive();
     error AuctionStillLiveOrClaimed();
     error BidRejcted();
     error CantCancel();
     error CantCancelHighestBid();
     error EndTimeLesserThanStartTime();
-    error FundsNotSent();
     error LowBid();
     error NotLive();
     error NotAuctionOwner();
