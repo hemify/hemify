@@ -14,8 +14,7 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 */
 
 interface IControl {
-    /// @dev    Events for different supports and revokes.
-    /// @notice nft NFT address supported or revoked.
+    /// @dev    Events for different supports and revokes of tokens for payments.
     /// @notice token IERC20 token address supported or revoked.
     event TokenSupportedForAuction(IERC20 indexed token);
     event TokenRevokedForAuction(IERC20 indexed token);
@@ -25,5 +24,5 @@ interface IControl {
     function supportToken(IERC20 token, AggregatorV3Interface agg) external;
     function revokeToken(IERC20 token) external;
 
-    function isSupported(IERC20 token) external view returns (address);
+    function isSupported(IERC20 token) external view returns (bool);
 }

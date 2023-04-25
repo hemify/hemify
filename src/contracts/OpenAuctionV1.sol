@@ -10,6 +10,7 @@ import {IEscrow} from "../interfaces/IEscrow.sol";
 import {IOpenAuctionV1} from "../interfaces/IOpenAuctionV1.sol";
 import {ITreasury} from "../interfaces/ITreasury.sol";
 
+import {PriceChecker} from "./utils/PriceChecker.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Taxes} from "./utils/Taxes.sol";
 
@@ -17,10 +18,11 @@ import {Taxes} from "./utils/Taxes.sol";
 * @title OpenAuctionV1.
 * @author fps (@0xfps).
 * @dev  Core Auction Contract.
-* @custom:version 0.0.1.
+* @custom:owner     BotBuddyz.
+* @custom:version   0.0.1.
 */
 
-abstract contract OpenAuctionV1 is IOpenAuctionV1, Taxes {
+abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
     IControl control;
     IEscrow escrow;
     ITreasury treasury;
@@ -37,7 +39,8 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, Taxes {
         address _control,
         address _escrow,
         address _treasury
-    ) {
+    )
+    {
         if (
             _control == address(0) ||
             _escrow == address(0) ||
@@ -63,7 +66,10 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, Taxes {
         uint256 _minPrice,
         uint128 _auctionStart,
         uint128 _auctionEnd
-    ) public returns (uint256, bool) {
+    )
+        public
+        returns (uint256, bool)
+    {
         address nftOwner = _nft.ownerOf(_id);
         if (
             (nftOwner != msg.sender) &&
@@ -105,7 +111,8 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, Taxes {
         IERC20 highestBidToken,
         uint256 highestBid,
         uint256 highestBidTokenAmount
-    ) {
+    )
+    {
         /// @dev Allowed for all live auctions.
         Auction memory _auction = auctions[auctionId];
         if (_auction.state != AuctionState.LIVE) revert NotLive();
@@ -125,14 +132,14 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, Taxes {
         return _auction;
     }
 
-    function _canBid(uint256 _auctionId) private view returns (bool) {
+    function _canBid(uint256 _auctionId) private returns (bool) {
         Auction memory _auction = auctions[_auctionId];
 
         if (_auction.state == AuctionState.RESOLVED) return false;
-        else if (_auction.auctionEnd <= block.timestamp) return false;
+        else if (block.timestamp >= _auction.auctionEnd) return false;
         else if (_auction.state == AuctionState.LIVE) return true;
-        else if (_auction.auctionStart <= block.timestamp) {
-            auctions[_auctionId].state == AuctionState.LIVE;
+        else if (block.timestamp >= _auction.auctionStart) {
+            auctions[_auctionId].state = AuctionState.LIVE;
             return true;
         } else return false;
     }

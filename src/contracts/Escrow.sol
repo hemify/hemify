@@ -14,13 +14,16 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 * @author fps (@0xfps).
 * @dev  Escrow contract.
 *       A contract to hold NFTs during auction duration.
+*       Any contract can interact with this contract as long as it's been
+*       `allow`ed by this contract.
 */
 
 contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
     ITreasury private treasury;
 
     constructor(address _treasury, address[] memory _addresses)
-    SimpleMultiSig(_addresses) {
+        SimpleMultiSig(_addresses)
+    {
         if (_treasury == address(0)) revert ZeroAddress();
         treasury = ITreasury(_treasury);
     }

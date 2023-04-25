@@ -40,20 +40,13 @@ interface ITreasury {
 
     function withdraw() external returns (bool);
 
-    function deposit(
-        address from,
-        IERC20 token,
-        uint256 amount
-    ) external returns (bool);
+    function deposit(address from, IERC20 token, uint256 amount)
+        external
+        returns (bool);
 
-    function sendPayment(
-        IERC20 token,
-        address to,
-        uint256 amount
-    ) external returns (bool);
+    function sendPayment(IERC20 token, address to, uint256 amount)
+        external
+        returns (bool);
 
-    function withdraw(
-        IERC20 token,
-        uint256 amount
-    ) external returns (bool);
+    function withdraw(IERC20 token, uint256 amount) external returns (bool);
 }

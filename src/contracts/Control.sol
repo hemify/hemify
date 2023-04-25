@@ -13,10 +13,8 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 * @title Control
 * @author fps (@0xfps).
 * @dev  Control contract.
-*       A contract for setting and revoking support for a particular NFT collection,
-*       allowing NFTs from that collection to be listable for auctions, and also,
-*       for setting and revoking support for a particular IERC20 tokens, making them
-*       acceptable as a means of making bids for listed auctions.
+*       A contract for setting and revoking support for a particular IERC20 tokens,
+*       making them acceptable as a means of making bids for listed auctions.
 */
 
 contract Control is IControl, Ownable2Step {
@@ -37,7 +35,7 @@ contract Control is IControl, Ownable2Step {
         emit TokenRevokedForAuction(token);
     }
 
-    function isSupported(IERC20 token) public view returns (address) {
-        return address(supportedTokens[token]);
+    function isSupported(IERC20 token) public view returns (bool) {
+        return address(supportedTokens[token]) != address(0);
     }
 }

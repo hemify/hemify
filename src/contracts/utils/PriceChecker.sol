@@ -12,6 +12,6 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 *       supported Tokens/ETH.
 */
 
-contract PriceChecker {
+abstract contract PriceChecker {
 
 }
