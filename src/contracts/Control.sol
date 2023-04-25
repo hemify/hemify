@@ -20,69 +20,24 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 */
 
 contract Control is IControl, Ownable2Step {
-    mapping(IERC20 => bool) public supportedTokens;
-    mapping(IERC721 => bool) public supportedAuctionNFTs;
-    mapping(IERC721 => bool) public supportedSwapNFTs;
-    mapping(IERC20 => AggregatorV3Interface) public aggregators;
-
-    function supportAuctionNFT(IERC721 nft) public onlyOwner {
-        if (address(nft) == address(0)) revert ZeroAddress();
-
-        if (!supportedAuctionNFTs[nft]) supportedAuctionNFTs[nft] = true;
-
-        emit NFTSupportedForAuction(nft);
-    }
-
-    function revokeAuctionNFT(IERC721 nft) public onlyOwner {
-        if (supportedAuctionNFTs[nft]) supportedAuctionNFTs[nft] = false;
-
-        emit NFTRevokedForAuction(nft);
-    }
+    mapping(IERC20 => AggregatorV3Interface) public supportedTokens;
 
     function supportToken(IERC20 token, AggregatorV3Interface agg) public onlyOwner {
         if (address(token) == address(0)) revert ZeroAddress();
         if (address(agg) == address(0)) revert ZeroAddress();
 
-        if (!supportedTokens[token]) {
-            supportedTokens[token] = true;
-            aggregators[token] = agg;
-        }
+        if (address(supportedTokens[token]) == address(0)) supportedTokens[token] = agg;
 
         emit TokenSupportedForAuction(token);
     }
 
     function revokeToken(IERC20 token) public onlyOwner {
-        if (supportedTokens[token]) {
-            supportedTokens[token] = false;
-            delete aggregators[token];
-        }
+        if (address(supportedTokens[token]) != address(0)) delete supportedTokens[token];
 
         emit TokenRevokedForAuction(token);
     }
 
-    function supportSwapNFT(IERC721 nft) public onlyOwner {
-        if (address(nft) == address(0)) revert ZeroAddress();
-
-        if (!supportedSwapNFTs[nft]) supportedSwapNFTs[nft] = true;
-
-        emit NFTSupportedForSwap(nft);
-    }
-
-    function revokeSwapNFT(IERC721 nft) public onlyOwner {
-        if (supportedSwapNFTs[nft]) supportedSwapNFTs[nft] = false;
-
-        emit NFTRevokedForSwap(nft);
-    }
-
-    function isSupported(IERC20 token) public view returns (bool) {
-        return supportedTokens[token];
-    }
-
-    function isSupportedForAuction(IERC721 nft) public view returns (bool) {
-        return supportedAuctionNFTs[nft];
-    }
-
-    function isSupportedForSwap(IERC721 nft) public view returns (bool) {
-        return supportedSwapNFTs[nft];
+    function isSupported(IERC20 token) public view returns (address) {
+        return address(supportedTokens[token]);
     }
 }

@@ -17,27 +17,13 @@ interface IControl {
     /// @dev    Events for different supports and revokes.
     /// @notice nft NFT address supported or revoked.
     /// @notice token IERC20 token address supported or revoked.
-    event NFTSupportedForAuction(IERC721 indexed nft);
-    event NFTRevokedForAuction(IERC721 indexed nft);
-
     event TokenSupportedForAuction(IERC20 indexed token);
     event TokenRevokedForAuction(IERC20 indexed token);
 
-    event NFTSupportedForSwap(IERC721 indexed nft);
-    event NFTRevokedForSwap(IERC721 indexed nft);
-
     error ZeroAddress();
-
-    function supportAuctionNFT(IERC721 nft) external;
-    function revokeAuctionNFT(IERC721 nft) external;
 
     function supportToken(IERC20 token, AggregatorV3Interface agg) external;
     function revokeToken(IERC20 token) external;
 
-    function supportSwapNFT(IERC721 nft) external;
-    function revokeSwapNFT(IERC721 nft) external;
-
-    function isSupported(IERC20 token) external view returns (bool);
-    function isSupportedForAuction(IERC721 nft) external view returns (bool);
-    function isSupportedForSwap(IERC721 nft) external view returns (bool);
+    function isSupported(IERC20 token) external view returns (address);
 }

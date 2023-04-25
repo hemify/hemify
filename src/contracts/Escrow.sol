@@ -38,7 +38,7 @@ contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
         IERC721 nft,
         uint256 id
     ) external onlyAllowed returns (bool) {
-        // Checks of IERC721 being supported are done in the Auction.
+        // All NFTs are supported for auctions.
         address nftOwner = nft.ownerOf(id);
 
         if (
