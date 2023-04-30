@@ -103,6 +103,7 @@ interface IOpenAuctionV1 {
     error AuctionStillLive();
     error AuctionStillLiveOrClaimed();
     error BidRejcted();
+    error BiddingStarted();
     error CantCancel();
     error CantCancelHighestBid();
     error EndTimeLesserThanStartTime();
@@ -145,6 +146,8 @@ interface IOpenAuctionV1 {
     function resolve(uint256 auctionId) external returns (bool);
 
     function claim(uint256 auctionId) external returns (bool);
+
+    function removeAuction(uint256 auctionId) external returns (bool);
 
     function recoverLostBid(uint256 auctionId) external returns (bool);
 

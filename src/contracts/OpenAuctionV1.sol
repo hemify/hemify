@@ -22,7 +22,7 @@ import {Taxes} from "./utils/Taxes.sol";
 * @custom:version   0.0.1.
 */
 
-abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
+contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
     IControl control;
     IEscrow escrow;
     ITreasury treasury;
@@ -113,9 +113,9 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
     ///         and delete the `highestBidTokenAmount`.
     ///         It doesn't delete or refund the previous highest bid from the mapping.
     ///         The bidder of the previous highest bid can always cancel their bid.
-    function bid(uint256 auctionId) external payable returns (bool) {
-        /// @dev    Inexistent auctions will have `auctionEnd` as 0, which will return
-        ///         `false` by
+    function bid(uint256 auctionId) public payable returns (bool) {
+        /// @dev    Inexistent auctions will have `auctionOwner` as address(0), which
+        ///         will return `false` by
         ///         `else if (_auction.auctionOwner == address(0)) return false;`.
         if (!_canBid(auctionId)) revert BidRejcted();
 
@@ -157,11 +157,11 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
     ///         It doesn't delete or refund the previous highest bid from the mapping.
     ///         The bidder of the previous highest bid can always cancel their bid.
     function bid(uint256 auctionId, IERC20 token, uint256 amount)
-        external
+        public
         returns (bool)
     {
-        /// @dev    Inexistent auctions will have `auctionEnd` as 0, which will return
-        ///         `false` by
+        /// @dev    Inexistent auctions will have `auctionOwner` as address(0), which
+        ///         will return `false` by
         ///         `else if (_auction.auctionOwner == address(0)) return false;`.
         if (!_canBid(auctionId)) revert BidRejcted();
         if (!control.isSupported(token)) revert TokenNotSupported();
@@ -195,10 +195,10 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
-    /// @notice Allows caller to cancel and reclaim his bid funds.
+    /// @notice Allows caller to cancel and reclaim all their bid funds.
     ///         Caller must not be the current highest bidder, and auction must
     ///         be LIVE.
-    function cancelBid(uint256 auctionId) external returns (bool) {
+    function cancelBid(uint256 auctionId) public returns (bool) {
         if (!_canBid(auctionId)) revert CantCancel();
 
         Auction memory _auction = auctions[auctionId];
@@ -215,10 +215,10 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
-    /// @notice Allows caller to cancel and reclaim his bid token funds.
+    /// @notice Allows caller to cancel and reclaim all their bid token funds.
     ///         Caller must not be the current highest bidder, and auction must
     ///         be LIVE.
-    function cancelBid(uint256 auctionId, IERC20 token) external returns (bool) {
+    function cancelBid(uint256 auctionId, IERC20 token) public returns (bool) {
         if (!_canBid(auctionId)) revert CantCancel();
 
         Auction memory _auction = auctions[auctionId];
@@ -235,21 +235,25 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
-    function resolve(uint256 auctionId) external returns (bool) {
+    function resolve(uint256 auctionId) public returns (bool) {
         Auction memory _auction = auctions[auctionId];
         if (msg.sender != _auction.auctionOwner) revert NotAuctionOwner();
         if (_auction.state != AuctionState.LIVE) revert AuctionNotLive();
+        if (block.timestamp < _auction.auctionEnd) revert AuctionStillLive();
+
+        address _auctionOwner = _auction.auctionOwner;
+        address _auctionWinner = _auction.auctionWinner;
+
+        if (_auctionWinner == address(0)) revert ZeroAddress();
 
         _auction.state = AuctionState.RESOLVED;
+        auctions[auctionId] = _auction;
+
         bool sent;
 
         /// @dev `highestBidIsInETH` is `true`.
         if (_auction.highestBidIsInETH) {
             uint256 payment = _auction.highestBid;
-            address _auctionOwner = _auction.auctionOwner;
-            address _auctionWinner = _auction.auctionWinner;
-
-            auctions[auctionId] = _auction;
 
             ethBids[auctionId][_auctionWinner] -= payment;
 
@@ -263,10 +267,6 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         if (!_auction.highestBidIsInETH) {
             IERC20 paymentToken = _auction.highestBidToken;
             uint256 payment = _auction.highestBidTokenAmount;
-            address _auctionOwner = _auction.auctionOwner;
-            address _auctionWinner = _auction.auctionWinner;
-
-            auctions[auctionId] = _auction;
 
             tokenBids[auctionId][_auctionWinner][paymentToken] -= payment;
 
@@ -279,7 +279,7 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
-    function claim(uint256 auctionId) external returns (bool) {
+    function claim(uint256 auctionId) public returns (bool) {
         Auction memory _auction = auctions[auctionId];
         if (msg.sender != _auction.auctionWinner) revert NotAuctionWinner();
         if (_auction.state != AuctionState.RESOLVED) revert AuctionStillLiveOrClaimed();
@@ -297,8 +297,26 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
+    function removeAuction(uint256 auctionId) public returns (bool) {
+        Auction memory _auction = auctions[auctionId];
+        if (msg.sender != _auction.auctionOwner) revert NotAuctionOwner();
+        if (_auction.state != AuctionState.LIVE) revert AuctionNotLive();
+
+        if (_auction.auctionWinner != address(0)) revert BiddingStarted();
+
+        IERC721 _nft = _auction.nft;
+        uint256 _id = _auction.id;
+
+        delete auctions[auctionId];
+
+        bool sent = escrow.sendNFT(_nft, _id, msg.sender);
+        if (!sent) revert NotSent();
+
+        return sent;
+    }
+
     /// @notice Taxes aren't taken for losers.
-    function recoverLostBid(uint256 auctionId) external returns (bool) {
+    function recoverLostBid(uint256 auctionId) public returns (bool) {
         Auction memory _auction = auctions[auctionId];
         if (
             _auction.state == AuctionState.DORMANT ||
@@ -316,7 +334,7 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
-    function recoverLostBid(uint256 auctionId, IERC20 token) external returns (bool) {
+    function recoverLostBid(uint256 auctionId, IERC20 token) public returns (bool) {
         Auction memory _auction = auctions[auctionId];
         if (
             _auction.state == AuctionState.DORMANT ||
@@ -334,7 +352,7 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
-    function getHighestBid(uint256 auctionId) external view returns (
+    function getHighestBid(uint256 auctionId) public view returns (
         bool highestBidIsInETH,
         IERC20 highestBidToken,
         uint256 highestBid,
@@ -354,7 +372,7 @@ abstract contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         );
     }
 
-    function getAuction(uint256 auctionId) external view returns (Auction memory) {
+    function getAuction(uint256 auctionId) public view returns (Auction memory) {
         // For all auctions, no matter what.
         Auction memory _auction = auctions[auctionId];
         return _auction;
