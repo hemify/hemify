@@ -4,7 +4,6 @@ pragma solidity 0.8.19;
 import {IEscrow} from "../interfaces/IEscrow.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-import {ITreasury} from "../interfaces/ITreasury.sol";
 
 import {Gated, SimpleMultiSig} from "./utils/Gated.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -15,27 +14,31 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 * @dev  Escrow contract.
 *       A contract to hold NFTs during auction duration.
 *       Any contract can interact with this contract as long as it's been
-*       `allow`ed by this contract.
+*       `allow`ed by this contract via the `Gated` contract via multisig.
 */
 
 contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
-    ITreasury private treasury;
-
-    constructor(address _treasury, address[] memory _addresses)
+    /// @dev Initialize protective multi-sig of at least 5 addresses.
+    /// @param _addresses 5 or more addresses for multi-sig protection.
+    constructor(address[] memory _addresses)
         SimpleMultiSig(_addresses)
-    {
-        if (_treasury == address(0)) revert ZeroAddress();
-        treasury = ITreasury(_treasury);
-    }
+    {}
 
-    receive() external payable {
-        treasury.deposit{value: msg.value}();
-    }
-
-    fallback() external payable {
-        treasury.deposit{value: msg.value}();
-    }
-
+    /**
+    * @dev Accepts `nft` from `from`.
+    * @notice   This function is callable by any address `allow`ed by this
+    *           contract. To see how addresses can be `allow`ed, checkout
+    *           utils/Gated.sol.
+    *           NFTs are asserted to be owned by this contract after transfer.
+    *           This contract will be approved by `from` to move NFTs via the
+    *           `setApprovalForAll()` function in OpenZeppelin's ERC721 implementation.
+    *           Also, `from` must be the owner, or is approved by the owner of the NFT
+    *           for transfers.
+    * @param from   NFT owner or approved spender.
+    * @param nft    NFT address.
+    * @param id     NFT id.
+    * @return bool  Status of NFT transfer and ownership.
+    */
     function depositNFT(
         address from,
         IERC721 nft,
@@ -46,6 +49,7 @@ contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
         returns (bool)
     {
         // All NFTs are supported for auctions.
+        // NFTs for swap are gated on the swap contracts.
         address nftOwner = nft.ownerOf(id);
 
         if (
@@ -65,6 +69,19 @@ contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
         return true;
     }
 
+    /**
+    * @dev Sends an `nft` to `to`.
+    * @notice   This function sends nft id `id` from this contract
+    *           to `to`. Grounds are that nft `id` must be owned by
+    *           this contract and `to` is not a zero address and
+    *           is also not this contract. Just like `depositNFT()`,
+    *           it is only callable by addresses `allow`ed by this
+    *           contract.
+    * @param nft    NFT address.
+    * @param id     NFT id.
+    * @param to     Receiver.
+    * @return bool  Status of NFT transfer and ownership.
+    */
     function sendNFT(
         IERC721 nft,
         uint256 id,
@@ -79,7 +96,7 @@ contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
         if (to == address(0)) revert ZeroAddress();
         if (to == address(this)) revert TokenAlreadyOwned();
 
-        nft.safeTransferFrom(address(this), to, id);
+        nft.transferFrom(address(this), to, id);
 
         assert(nft.ownerOf(id) == to);
 
@@ -88,6 +105,10 @@ contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
         return true;
     }
 
+    /// @dev OpenZeppelin requirement for NFT receptions.
+    /// @return bytes4  bytes4(keccak256(
+    ///                     onERC721Received(address,address,uint256,bytes)
+    ///                 )) => 0x150b7a02.
     function onERC721Received(
         address,
         address,

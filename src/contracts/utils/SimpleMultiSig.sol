@@ -8,7 +8,7 @@ pragma solidity 0.8.19;
 *       for ETH and IERC20 in Treasury.
 */
 
-contract SimpleMultiSig {
+abstract contract SimpleMultiSig {
     uint8 private immutable SIZE;
     uint8 private signCount;
     mapping(address => bool) private signers;

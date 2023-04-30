@@ -21,6 +21,11 @@ contract Control is IControl, Ownable2Step {
     mapping(IERC20 => AggregatorV3Interface) private supportedTokens;
     mapping(IERC721 => bool) public supportedSwapNFTs;
 
+    /**
+    * @inheritdoc IControl
+    * @notice   `token` and `agg` cannot be zero addresses and function is only
+    *           callable by the owner.
+    */
     function supportToken(IERC20 token, AggregatorV3Interface agg) public onlyOwner {
         if (address(token) == address(0)) revert ZeroAddress();
         if (address(agg) == address(0)) revert ZeroAddress();
@@ -30,31 +35,53 @@ contract Control is IControl, Ownable2Step {
         emit TokenSupportedForAuction(token);
     }
 
+    /**
+    * @inheritdoc IControl
+    * @notice Function is only callable by the owner.
+    */
     function revokeToken(IERC20 token) public onlyOwner {
         if (address(supportedTokens[token]) != address(0)) delete supportedTokens[token];
 
         emit TokenRevokedForAuction(token);
     }
 
+    /**
+    * @inheritdoc IControl
+    * @notice   `nft` cannot be zero addresses and function is only callable
+    *           by the owner.
+    */
     function supportSwapNFT(IERC721 nft) public onlyOwner {
         if (address(nft) == address(0)) revert ZeroAddress();
         if (!supportedSwapNFTs[nft]) supportedSwapNFTs[nft] = true;
         emit NFTSupportedForSwap(nft);
     }
 
+    /**
+    * @inheritdoc IControl
+    * @notice Function is only callable by the owner.
+    */
     function revokeSwapNFT(IERC721 nft) public onlyOwner {
         if (supportedSwapNFTs[nft]) supportedSwapNFTs[nft] = false;
         emit NFTRevokedForSwap(nft);
     }
 
+    /**
+    * @inheritdoc IControl
+    */
     function isSupported(IERC20 token) public view returns (bool) {
         return address(supportedTokens[token]) != address(0);
     }
 
+    /**
+    * @inheritdoc IControl
+    */
     function isSupportedForSwap(IERC721 nft) public view returns (bool) {
         return supportedSwapNFTs[nft];
     }
 
+    /**
+    * @inheritdoc IControl
+    */
     function getTokenAggregator(IERC20 token) external view returns (AggregatorV3Interface) {
         if (!isSupported(token)) revert NotSupported();
         return supportedTokens[token];
