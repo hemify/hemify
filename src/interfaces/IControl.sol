@@ -19,12 +19,19 @@ interface IControl {
     event TokenSupportedForAuction(IERC20 indexed token);
     event TokenRevokedForAuction(IERC20 indexed token);
 
+    event NFTSupportedForSwap(IERC721 indexed nft);
+    event NFTRevokedForSwap(IERC721 indexed nft);
+
     error NotSupported();
     error ZeroAddress();
 
     function supportToken(IERC20 token, AggregatorV3Interface agg) external;
     function revokeToken(IERC20 token) external;
 
+    function supportSwapNFT(IERC721 nft) external;
+    function revokeSwapNFT(IERC721 nft) external;
+
     function isSupported(IERC20 token) external view returns (bool);
+    function isSupportedForSwap(IERC721 nft) external view returns (bool);
     function getTokenAggregator(IERC20 token) external view returns (AggregatorV3Interface);
 }
