@@ -40,7 +40,11 @@ contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
         address from,
         IERC721 nft,
         uint256 id
-    ) external onlyAllowed returns (bool) {
+    )
+        external
+        onlyAllowed
+        returns (bool)
+    {
         // All NFTs are supported for auctions.
         address nftOwner = nft.ownerOf(id);
 
@@ -65,7 +69,12 @@ contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
         IERC721 nft,
         uint256 id,
         address to
-    ) external nonReentrant onlyAllowed returns (bool) {
+    )
+        external
+        nonReentrant
+        onlyAllowed
+        returns (bool)
+    {
         if (nft.ownerOf(id) != address(this)) revert TokenNotOwned();
         if (to == address(0)) revert ZeroAddress();
         if (to == address(this)) revert TokenAlreadyOwned();
