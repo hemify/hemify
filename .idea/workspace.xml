@@ -6,7 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="3944fe08-65ba-4f03-9463-766a2133401a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/contracts/OpenAuctionV1.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/OpenAuctionV1.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Deployment.md" beforeDir="false" afterPath="$PROJECT_DIR$/Deployment.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/contracts/Control.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/Control.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/contracts/Escrow.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/Escrow.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/contracts/utils/Gated.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/utils/Gated.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/contracts/utils/SimpleMultiSig.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/utils/SimpleMultiSig.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IControl.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IControl.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IEscrow.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IEscrow.sol" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,7 +41,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected="Solidity.OpenAuctionV1.getHighestBid">
+  <component name="RunManager" selected="Solidity.OpenAuctionV1.cancelBid">
     <configuration name="Control.revokeToken" type="SolidityConfigurationType" factoryName="Solidity" temporary="true" show_console_on_std_err="false" show_console_on_std_out="false">
       <module name="bab" />
       <option name="VMParameters" />
@@ -92,6 +98,40 @@
       <option name="contractName" value="OpenAuctionV1" />
       <option name="contractFile" value="$PROJECT_DIR$/src/contracts/OpenAuctionV1.sol" />
       <option name="functionName" value="bid" />
+      <option name="vmParameters" />
+      <option name="programParameters" />
+      <option name="workingDirectory" />
+      <option name="envs">
+        <map />
+      </option>
+      <option name="ajreEnabled" value="false" />
+      <option name="ajre" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="OpenAuctionV1.cancelBid" type="SolidityConfigurationType" factoryName="Solidity" temporary="true" show_console_on_std_err="false" show_console_on_std_out="false">
+      <module name="bab" />
+      <option name="VMParameters" />
+      <option name="allowRunningInParallel" value="false" />
+      <option name="alternativeJrePath" />
+      <option name="alternativeJrePathEnabled" value="false" />
+      <option name="classpathModifications">
+        <list />
+      </option>
+      <option name="envs">
+        <map />
+      </option>
+      <option name="passParentEnvs" value="true" />
+      <option name="programParameters" />
+      <option name="projectPathOnTarget" />
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <option name="workingDirectory" value="" />
+      <option name="contractName" value="OpenAuctionV1" />
+      <option name="contractFile" value="$PROJECT_DIR$/src/contracts/OpenAuctionV1.sol" />
+      <option name="functionName" value="cancelBid" />
       <option name="vmParameters" />
       <option name="programParameters" />
       <option name="workingDirectory" />
@@ -174,6 +214,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Solidity.OpenAuctionV1.cancelBid" />
         <item itemvalue="Solidity.OpenAuctionV1.getHighestBid" />
         <item itemvalue="Solidity.OpenAuctionV1.resolve" />
         <item itemvalue="Solidity.OpenAuctionV1.bid" />

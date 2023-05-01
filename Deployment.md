@@ -5,7 +5,6 @@
 
 -> Treasury.
   - allow() Auction.
-  - allow() Escrow.
 
 -> Escrow.
   - allow() Auction.

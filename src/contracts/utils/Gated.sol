@@ -11,7 +11,7 @@ import {SimpleMultiSig} from "./SimpleMultiSig.sol";
 *       Controls which addresses can call which contracts.
 */
 
-abstract contract Gated is Ownable2Step, SimpleMultiSig {
+abstract contract Gated is SimpleMultiSig, Ownable2Step {
     mapping(address => bool) private allowed;
 
     error ZeroAddress();
