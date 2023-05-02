@@ -19,7 +19,7 @@ abstract contract SimpleMultiSig {
 
     constructor(address[] memory _addresses) {
         uint8 len = uint8(_addresses.length);
-        if ((len < 5)) revert();
+        if ((len < 5) || (len > 100)) revert();
 
         SIZE = len;
 

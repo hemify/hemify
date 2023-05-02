@@ -21,6 +21,8 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 contract Treasury is ITreasury, Gated, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
+    /// @dev Initialize protective multi-sig of at least 5 addresses.
+    /// @param _addresses 5 or more addresses for multi-sig protection.
     constructor(address[] memory _addresses) 
         SimpleMultiSig(_addresses) {}
 
@@ -32,11 +34,22 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         emit ETHDeposit(msg.value);
     }
 
+    /// @inheritdoc ITreasury
+    /// @return bool Status.
     function deposit() external payable onlyAllowed returns (bool) {
         emit ETHDeposit(msg.value);
         return true;
     }
 
+    /**
+    * @dev Sends an amount of ETH from this contract to `to`.
+    * @notice   Only allowed address and can call this contract.
+    *           Amount to send must be less than the amount in balance.
+    *           Also, `to` must not be a zero address.
+    * @param to     Receiver.
+    * @param amount Amount to send.
+    * @return bool  Status.
+    */
     function sendPayment(
         address to,
         uint256 amount
@@ -57,6 +70,13 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         return true;
     }
 
+    /**
+    * @dev Withdraws all funds in the contract.
+    * @notice   All addresses in the multisig must sign for this function
+    *           to succeed.
+    *           OnlyOwner can call this contract.
+    * @return bool  Status.
+    */
     function withdraw() public allSigned onlyOwner returns (bool) {
         uint256 amount = address(this).balance;
 
@@ -68,6 +88,17 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         return true;
     }
 
+    /**
+    * @dev Deposits `amount` amount of `token` tokens from `from` to this contract.
+    * @notice   This contract will be approved by `from` to allow easy deposits, but
+    *           will only be callable by the OpenAuction or any other added contract.
+    *           Assertion that the difference between the token balance of the contract
+    *           after deposit and before deposit is >= the amount deposited is made.
+    * @param from   Sender.
+    * @param token  Token.
+    * @param amount Amount to send, which will always be <= `from`'s balance.
+    * @return bool  Status.
+    */
     function deposit(
         address from,
         IERC20 token,
@@ -80,7 +111,7 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         /// @dev Checks of IERC20 being supported are done in the Auction.
         uint256 prevBal = token.balanceOf(address(this));
 
-        /// @dev    Caller must approve Treasury address to move funds
+        /// @dev    `from` must approve Treasury address to move funds
         ///         via approve().
         token.safeTransferFrom(from, address(this), amount);
 
@@ -91,6 +122,14 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         return true;
     }
 
+    /**
+    * @dev Sends `amount` amount of `token` tokens to `to` from this contract.
+    * @notice   Assertions as to balances are not made as function is non-reentrant.
+    * @param token  Token.
+    * @param to     Sender.
+    * @param amount Amount to send, which will always be <= this contract's balance.
+    * @return bool  Status.
+    */
     function sendPayment(
         IERC20 token,
         address to,
@@ -112,6 +151,12 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         return true;
     }
 
+    /**
+    * @dev Sends `amount` amount of `token` tokens to `owner()`.
+    * @param token  Token.
+    * @param amount Amount to send, which will always be <= this contract's balance.
+    * @return bool  Status.
+    */
     function withdraw(
         IERC20 token,
         uint256 amount
