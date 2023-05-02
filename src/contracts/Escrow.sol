@@ -20,7 +20,8 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
     /// @dev Initialize protective multi-sig of at least 5 addresses.
     /// @param _addresses 5 or more addresses for multi-sig protection.
-    constructor(address[] memory _addresses) SimpleMultiSig(_addresses) {}
+    constructor(address[] memory _addresses) 
+        SimpleMultiSig(_addresses) {}
 
     /**
      * @dev Accepts `nft` from `from`.
@@ -41,7 +42,11 @@ contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
         address from,
         IERC721 nft,
         uint256 id
-    ) external onlyAllowed returns (bool) {
+    ) 
+        external 
+        onlyAllowed
+        returns (bool)
+    {
         // All NFTs are supported for auctions.
         // NFTs for swap are gated on the swap contracts.
         address nftOwner = nft.ownerOf(id);
@@ -80,7 +85,12 @@ contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
         IERC721 nft,
         uint256 id,
         address to
-    ) external nonReentrant onlyAllowed returns (bool) {
+    ) 
+        external
+        nonReentrant
+        onlyAllowed
+        returns (bool)
+    {
         if (nft.ownerOf(id) != address(this)) revert TokenNotOwned();
         if (to == address(0)) revert ZeroAddress();
         if (to == address(this)) revert TokenAlreadyOwned();
