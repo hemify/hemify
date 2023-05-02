@@ -9,42 +9,41 @@ import {Gated, SimpleMultiSig} from "./utils/Gated.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
-* @title Escrow
-* @author fps (@0xfps).
-* @dev  Escrow contract.
-*       A contract to hold NFTs during auction duration.
-*       Any contract can interact with this contract as long as it's been
-*       `allow`ed by this contract via the `Gated` contract via multisig.
-*/
+ * @title Escrow
+ * @author fps (@0xfps).
+ * @dev  Escrow contract.
+ *       A contract to hold NFTs during auction duration.
+ *       Any contract can interact with this contract as long as it's been
+ *       `allow`ed by this contract via the `Gated` contract via multisig.
+ */
 
 contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
     /// @dev Initialize protective multi-sig of at least 5 addresses.
     /// @param _addresses 5 or more addresses for multi-sig protection.
-    constructor(address[] memory _addresses)
-        SimpleMultiSig(_addresses)
-    {}
+    constructor(address[] memory _addresses) 
+        SimpleMultiSig(_addresses) {}
 
     /**
-    * @dev Accepts `nft` from `from`.
-    * @notice   This function is callable by any address `allow`ed by this
-    *           contract. To see how addresses can be `allow`ed, checkout
-    *           utils/Gated.sol.
-    *           NFTs are asserted to be owned by this contract after transfer.
-    *           This contract will be approved by `from` to move NFTs via the
-    *           `setApprovalForAll()` function in OpenZeppelin's ERC721 implementation.
-    *           Also, `from` must be the owner, or is approved by the owner of the NFT
-    *           for transfers.
-    * @param from   NFT owner or approved spender.
-    * @param nft    NFT address.
-    * @param id     NFT id.
-    * @return bool  Status of NFT transfer and ownership.
-    */
+     * @dev Accepts `nft` from `from`.
+     * @notice   This function is callable by any address `allow`ed by this
+     *           contract. To see how addresses can be `allow`ed, checkout
+     *           utils/Gated.sol.
+     *           NFTs are asserted to be owned by this contract after transfer.
+     *           This contract will be approved by `from` to move NFTs via the
+     *           `setApprovalForAll()` function in OpenZeppelin's ERC721 implementation.
+     *           Also, `from` must be the owner, or is approved by the owner of the NFT
+     *           for transfers.
+     * @param from   NFT owner or approved spender.
+     * @param nft    NFT address.
+     * @param id     NFT id.
+     * @return bool  Status of NFT transfer and ownership.
+     */
     function depositNFT(
         address from,
         IERC721 nft,
         uint256 id
-    )
-        external
+    ) 
+        external 
         onlyAllowed
         returns (bool)
     {
@@ -70,23 +69,23 @@ contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
     }
 
     /**
-    * @dev Sends an `nft` to `to`.
-    * @notice   This function sends nft id `id` from this contract
-    *           to `to`. Grounds are that nft `id` must be owned by
-    *           this contract and `to` is not a zero address and
-    *           is also not this contract. Just like `depositNFT()`,
-    *           it is only callable by addresses `allow`ed by this
-    *           contract.
-    * @param nft    NFT address.
-    * @param id     NFT id.
-    * @param to     Receiver.
-    * @return bool  Status of NFT transfer and ownership.
-    */
+     * @dev Sends an `nft` to `to`.
+     * @notice   This function sends nft id `id` from this contract
+     *           to `to`. Grounds are that nft `id` must be owned by
+     *           this contract and `to` is not a zero address and
+     *           is also not this contract. Just like `depositNFT()`,
+     *           it is only callable by addresses `allow`ed by this
+     *           contract.
+     * @param nft    NFT address.
+     * @param id     NFT id.
+     * @param to     Receiver.
+     * @return bool  Status of NFT transfer and ownership.
+     */
     function sendNFT(
         IERC721 nft,
         uint256 id,
         address to
-    )
+    ) 
         external
         nonReentrant
         onlyAllowed
@@ -115,6 +114,6 @@ contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
         uint256,
         bytes calldata
     ) external pure returns (bytes4) {
-        return this.onERC721Received.selector;
+        return 0x150b7a02;
     }
 }

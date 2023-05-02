@@ -10,18 +10,18 @@ import {Gated, SimpleMultiSig} from "./utils/Gated.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
-* @title Treasury
-* @author fps (@0xfps).
-* @dev  Treasury contract.
-*       A contract to hold all tokens and ETH.
-*       Any contract can interact with this contract as long as it's been
-*       `allow`ed by this contract.
-*/
+ * @title Treasury
+ * @author fps (@0xfps).
+ * @dev  Treasury contract.
+ *       A contract to hold all tokens and ETH.
+ *       Any contract can interact with this contract as long as it's been
+ *       `allow`ed by this contract.
+ */
 
 contract Treasury is ITreasury, Gated, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    constructor(address[] memory _addresses)
+    constructor(address[] memory _addresses) 
         SimpleMultiSig(_addresses) {}
 
     receive() external payable {
@@ -37,7 +37,10 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         return true;
     }
 
-    function sendPayment(address to, uint256 amount)
+    function sendPayment(
+        address to,
+        uint256 amount
+    ) 
         external
         nonReentrant
         onlyAllowed
@@ -65,7 +68,11 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         return true;
     }
 
-    function deposit(address from, IERC20 token, uint256 amount)
+    function deposit(
+        address from,
+        IERC20 token,
+        uint256 amount
+    ) 
         external
         onlyAllowed
         returns (bool)
@@ -84,7 +91,11 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         return true;
     }
 
-    function sendPayment(IERC20 token, address to, uint256 amount)
+    function sendPayment(
+        IERC20 token,
+        address to,
+        uint256 amount
+    ) 
         external
         nonReentrant
         onlyAllowed
@@ -101,7 +112,10 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         return true;
     }
 
-    function withdraw(IERC20 token, uint256 amount)
+    function withdraw(
+        IERC20 token,
+        uint256 amount
+    ) 
         public
         allSigned
         onlyOwner
