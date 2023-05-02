@@ -3,16 +3,16 @@ pragma solidity 0.8.19;
 
 import {AggregatorV3Interface}
     from "chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-import {IControl} from "../interfaces/IControl.sol";
+import {IControl} from "../../interfaces/IControl.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {IEscrow} from "../interfaces/IEscrow.sol";
-import {IOpenAuctionV1} from "../interfaces/IOpenAuctionV1.sol";
-import {ITreasury} from "../interfaces/ITreasury.sol";
+import {IEscrow} from "../../interfaces/IEscrow.sol";
+import {IOpenAuctionV1} from "../../interfaces/IOpenAuctionV1.sol";
+import {ITreasury} from "../../interfaces/ITreasury.sol";
 
-import {PriceChecker} from "./utils/PriceChecker.sol";
+import {PriceChecker} from "../utils/PriceChecker.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {Taxes} from "./utils/Taxes.sol";
+import {Taxes} from "../utils/Taxes.sol";
 
 /**
 * @title OpenAuctionV1.
