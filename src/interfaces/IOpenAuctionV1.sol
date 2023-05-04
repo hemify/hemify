@@ -16,7 +16,7 @@ interface IOpenAuctionV1 {
     * @dev  Specifies the current state of the auction.
     *       DORMANT:   Auction has not yet begun.
     *       LIVE:      Auction has started.
-    *       RESOLED:   Auction has ended and resolved.
+    *       RESOLED:   Auction has ended and is resolved.
     *       CLAIMED:   Winner has taken their owned NFT.
     */
     enum AuctionState {
