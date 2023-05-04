@@ -204,18 +204,26 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
-    /// @notice Allows anyone to make a token bid on an existing auction.
-    ///         Auction must exist and will be LIVE.
-    ///         Tokens will only be approved tokens in `Control`.
-    ///         All token amount sent will be evaluated to their ETH worth at
-    ///         the time of bidding (and `bid()` logic runs).
-    ///         Bids must be higher than `minPrice` (for first bid) and
-    ///         `highestBid` (for subsequent bids).
-    ///         If the current ETH is > the highest bid, it will set
-    ///         `highestBidIsInETH` to false and set the `highestBidToken` to token,
-    ///         and set the `highestBidTokenAmount` to the amount of tokens sent.
-    ///         It doesn't delete or refund the previous highest bid from the mapping.
-    ///         The bidder of the previous highest bid can always cancel their bid.
+    /**
+    * @dev Allows `msg.sender` to make a token bid on an existing auction.
+    * @notice   Allows anyone to make a token bid on an existing auction.
+    *           Auction must exist and will be LIVE.
+    *           Tokens will only be approved tokens in `Control`.
+    *           All token amount sent will be evaluated to their ETH worth at
+    *           the time of bidding (and `bid()` logic runs).
+    *           Bids must be higher than `minPrice` (for first bid) and
+    *           `highestBid` (for subsequent bids).
+    *           If the current ETH is > the highest bid, it will set
+    *           `highestBidIsInETH` to false and set the `highestBidToken` to token,
+    *           and set the `highestBidTokenAmount` to the amount of tokens sent.
+    *           It doesn't delete or refund the previous highest bid from the mapping.
+    *           The bidder of the previous highest bid can always cancel their bid as long as
+    *           auction is LIVE.
+    * @param auctionId  ID of the auction to bid on.
+    * @param token      IERC20 token to bid with.
+    * @param amount     Amount of tokens to send.
+    * @return bool Bid status.
+    */
     function bid(uint256 auctionId, IERC20 token, uint256 amount)
         public
         returns (bool)
