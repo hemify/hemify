@@ -99,6 +99,7 @@ interface IOpenAuctionV1 {
     */
     event Resolved(uint256 indexed id);
 
+    error AuctionNotLive();
     error AuctionNotLiveOrDormant();
     error AuctionStillLive();
     error AuctionStillLiveOrClaimed();

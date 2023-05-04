@@ -498,8 +498,8 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
     }
 
     /// @dev Returns the auction data for `auctionId`.
-    /// @param auctionID ID of auction.
-    /// @returns Auction Auction `auctionId`'s data.
+    /// @param auctionId ID of auction.
+    /// @return Auction Auction `auctionId`'s data.
     function getAuction(uint256 auctionId) public view returns (Auction memory) {
         // For all auctions, no matter what.
         Auction memory _auction = auctions[auctionId];
