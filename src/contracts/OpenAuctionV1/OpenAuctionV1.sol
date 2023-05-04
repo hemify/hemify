@@ -20,6 +20,35 @@ import {Taxes} from "../utils/Taxes.sol";
 * @dev  Core Auction Contract.
 * @custom:owner     BotBuddyz.
 * @custom:version   0.0.1.
+* @notice   NFT Auction contract. NFTs are listed by the owner or an approved
+*           personnel via the `list()` function. This will return the `id` of the
+*           auction. The NFT is sent to the `Escrow` contract for the duration of
+*           the auction.
+*
+*           Auctions can be closed at any time on the condition that there have been
+*           no bids on it.
+*
+*           Interested buyers make bids using the overloaded function `bid()` for
+*           ETH and Token (only supported tokens) bids, and is only possible if the
+*           auction is live.
+*
+*           Highest bidder takes the `_auction.auctionWinner` spot for a particular
+*           `auctionId` sent by the bidder.
+*
+*           Token bids are converted into their ETH equivalent via formula specified
+*           in the `PriceChecker` contract and bidder can only take the `_auction.auctionWinner`
+*           spot if the equivalence of their token bid is > the current highest bid ETH
+*           for that `auctionId`.
+*
+*           Bids can be cancelled by the bidder and their funds restored to them.
+*
+*           Auction owner can resolve the auction after the auction time has passed. The winning
+*           bid is sent to the auction owner after 1% taxes have been deducted. The NFT is
+*           then claimable by the winner of the auction. Any bid made after the auction end
+*           date has passed is reverted.
+*
+*           After auction resolution, bidders can reclaim the bids they lost and bids cannot
+*           be cancelled, rather, reclaimed.
 */
 
 contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
@@ -27,6 +56,7 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
     IEscrow escrow;
     ITreasury treasury;
 
+    /// @dev Auction index count.
     uint256 private _index;
     // mapping(auctionId => Auction) internal auctions;
     mapping(uint256 => Auction) internal auctions;
@@ -52,14 +82,36 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         treasury = ITreasury(_treasury);
     }
 
+    /// @dev Handle incoming funds by sending them to treasury.
     receive() external payable {
         treasury.deposit{value: msg.value}();
     }
 
+    /// @dev Handle incoming funds by sending them to treasury.
     fallback() external payable {
         treasury.deposit{value: msg.value}();
     }
 
+    /**
+    * @dev  Allows an NFT owner or an approved person to list an NFT
+    *       for auction.
+    * @notice   Auctioneers are allowed to list any NFT that they own or are
+    *           approved to spend by the owner. Of course, before NFTs are listed
+    *           for auction, the `Escrow` contract must be first approved via a
+    *           `setApprovalForAll()` in the `ERC721` NFT contract.
+    *
+    *           Auction min prices cannot be `0`.
+    *
+    *           Auction start times and end times must be in the future with the end
+    *           time being further than the start time.
+    * @param _nft           NFT address.
+    * @param _id            NFT id.
+    * @param _minPrice      Minimum price for auction bids.
+    * @param _auctionStart  Auction start time.
+    * @param _auctionEnd    Auction end time.
+    * @return uint256       Auction id.
+    * @return bool          Auction creation status.
+    */
     function list(
         IERC721 _nft,
         uint256 _id,
@@ -104,19 +156,27 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return(index, success);
     }
 
-    /// @notice Allows anyone to make an ETH bid on an existing auction.
-    ///         Auction must exist and will be LIVE.
-    ///         Bids must be higher than `minPrice` (for first bid) and
-    ///         `highestBid` (for subsequent bids).
-    ///         If the current ETH is > the highest bid, it will set
-    ///         `highestBidIsInETH` to true and set the `highestBidToken` to (0),
-    ///         and delete the `highestBidTokenAmount`.
-    ///         It doesn't delete or refund the previous highest bid from the mapping.
-    ///         The bidder of the previous highest bid can always cancel their bid.
+    /**
+    * @dev Allows `msg.sender` to make an ETH bid on an existing auction.
+    * @notice   Allows anyone to make an ETH bid on an existing auction.
+    *           Auction must exist and will be LIVE.
+    *           Bids must be higher than `minPrice` (for first bid) and
+    *           `highestBid` (for subsequent bids).
+    *           Auction owners cannot bid on their auctions.
+    *           If the current ETH is > the highest bid, it will set
+    *           `highestBidIsInETH` to true and set the `highestBidToken` to `address(0)`,
+    *           and delete the `highestBidTokenAmount`.
+    *           It doesn't delete or refund the previous highest bid from the mapping.
+    *           The bidder of the previous highest bid can always cancel their bid as long as
+    *           auction is LIVE.
+    * @param auctionId  ID of the auction to bid on.
+    * @return bool Bid status.
+    */
     function bid(uint256 auctionId) public payable returns (bool) {
         /// @dev    Inexistent auctions will have `auctionOwner` as address(0), which
         ///         will return `false` by
         ///         `else if (_auction.auctionOwner == address(0)) return false;`.
+        ///         Check out function for other checks.
         if (!_canBid(auctionId)) revert BidRejcted();
 
         Auction memory _auction = auctions[auctionId];
@@ -144,18 +204,26 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
-    /// @notice Allows anyone to make a token bid on an existing auction.
-    ///         Auction must exist and will be LIVE.
-    ///         Tokens will only be approved tokens in `Control`.
-    ///         All token amount sent will be evaluated to their ETH worth at
-    ///         the time of bidding (and `bid()` logic runs).
-    ///         Bids must be higher than `minPrice` (for first bid) and
-    ///         `highestBid` (for subsequent bids).
-    ///         If the current ETH is > the highest bid, it will set
-    ///         `highestBidIsInETH` to false and set the `highestBidToken` to token,
-    ///         and set the `highestBidTokenAmount` to the amount of tokens sent.
-    ///         It doesn't delete or refund the previous highest bid from the mapping.
-    ///         The bidder of the previous highest bid can always cancel their bid.
+    /**
+    * @dev Allows `msg.sender` to make a token bid on an existing auction.
+    * @notice   Allows anyone to make a token bid on an existing auction.
+    *           Auction must exist and will be LIVE.
+    *           Tokens will only be approved tokens in `Control`.
+    *           All token amount sent will be evaluated to their ETH worth at
+    *           the time of bidding (and `bid()` logic runs).
+    *           Bids must be higher than `minPrice` (for first bid) and
+    *           `highestBid` (for subsequent bids).
+    *           If the current ETH is > the highest bid, it will set
+    *           `highestBidIsInETH` to false and set the `highestBidToken` to token,
+    *           and set the `highestBidTokenAmount` to the amount of tokens sent.
+    *           It doesn't delete or refund the previous highest bid from the mapping.
+    *           The bidder of the previous highest bid can always cancel their bid as long as
+    *           auction is LIVE.
+    * @param auctionId  ID of the auction to bid on.
+    * @param token      IERC20 token to bid with.
+    * @param amount     Amount of tokens to send.
+    * @return bool Bid status.
+    */
     function bid(uint256 auctionId, IERC20 token, uint256 amount)
         public
         returns (bool)
@@ -378,6 +446,11 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return _auction;
     }
 
+    /**
+    * @dev Checks to verify if `auctionId` can be bid on.
+    * @param _auctionId ID of auction.
+    * @return bool True if the auction can be bid on, false if otherwise.
+    */
     function _canBid(uint256 _auctionId) private returns (bool) {
         Auction memory _auction = auctions[_auctionId];
 
