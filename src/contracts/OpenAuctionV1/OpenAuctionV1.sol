@@ -263,9 +263,14 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
-    /// @notice Allows caller to cancel and reclaim all their bid funds.
-    ///         Caller must not be the current highest bidder, and auction must
-    ///         be LIVE.
+    /**
+    * @dev Allows `msg.sender` to cancel bid made with ETH.
+    * @notice   Allows caller to cancel and reclaim all their bid funds.
+    *           Caller must not be the current highest bidder, and auction must
+    *           be LIVE.
+    * @param auctionId ID of auction.
+    * @return bool State of cancel.
+    */
     function cancelBid(uint256 auctionId) public returns (bool) {
         if (!_canBid(auctionId)) revert CantCancel();
 
@@ -283,9 +288,14 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
-    /// @notice Allows caller to cancel and reclaim all their bid token funds.
-    ///         Caller must not be the current highest bidder, and auction must
-    ///         be LIVE.
+    /**
+    * @dev Allows `msg.sender` to cancel bid made with ETH.
+    * @notice   Allows caller to cancel and reclaim all their bid token funds.
+    *           Caller must not be the current highest bidder, and auction must
+    *           be LIVE.
+    * @param auctionId ID of auction.
+    * @return bool State of cancel.
+    */
     function cancelBid(uint256 auctionId, IERC20 token) public returns (bool) {
         if (!_canBid(auctionId)) revert CantCancel();
 
@@ -303,6 +313,15 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
+    /**
+    * @dev Allows auction owner to resolve auction and stop subsequent bids.
+    * @notice   If the auction winner is the zero address, i.e. there have been
+    *           no bids, it is advised to use `removeAuction()` instead.
+    *           This function will send the token or ETH highest bid to the
+    *           auction owner and set the auction state to RESOLVED.
+    * @param auctionId ID of auction.
+    * @return bool Resolution state.
+    */
     function resolve(uint256 auctionId) public returns (bool) {
         Auction memory _auction = auctions[auctionId];
         if (msg.sender != _auction.auctionOwner) revert NotAuctionOwner();
@@ -327,8 +346,6 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
 
             sent = treasury.sendPayment(_auctionOwner, afterTax(payment));
             if (!sent) revert NotSent();
-
-            emit Resolved(auctionId);
         }
 
         /// @dev `highestBidIsInETH` is `false`.
@@ -340,13 +357,20 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
 
             sent = treasury.sendPayment(paymentToken, _auctionOwner, afterTax(payment));
             if (!sent) revert NotSent();
-
-            emit Resolved(auctionId);
         }
+
+        emit Resolved(auctionId);
 
         return sent;
     }
 
+    /**
+    * @dev Allows the auction winner to claim their NFT.
+    * @notice   Auction rewards can be claimed only when they're RESOLVED,
+    *           after which, it's set to CLAIMED.
+    * @param auctionId ID of auction.
+    * @return bool Claim state.
+    */
     function claim(uint256 auctionId) public returns (bool) {
         Auction memory _auction = auctions[auctionId];
         if (msg.sender != _auction.auctionWinner) revert NotAuctionWinner();
@@ -365,10 +389,19 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
+    /**
+    * @dev Lets the auction owner remove an auction.
+    * @notice For this to be possible, there has to be no submitted bid.
+    * @param auctionId ID of auction.
+    * @return bool Removal state.
+    */
     function removeAuction(uint256 auctionId) public returns (bool) {
         Auction memory _auction = auctions[auctionId];
         if (msg.sender != _auction.auctionOwner) revert NotAuctionOwner();
-        if (_auction.state != AuctionState.LIVE) revert AuctionNotLive();
+        if (
+            (_auction.state == AuctionState.RESOLVED) ||
+            (_auction.state == AuctionState.CLAIMED)
+        ) revert AuctionNotLiveOrDormant();
 
         if (_auction.auctionWinner != address(0)) revert BiddingStarted();
 
@@ -383,7 +416,12 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
-    /// @notice Taxes aren't taken for losers.
+    /**
+    * @dev Allows caller to recover their lost non-highest bids on `auctionId`.
+    * @notice Taxes aren't taken for losers.
+    * @param auctionId ID of auction.
+    * @return bool Recovery state.
+    */
     function recoverLostBid(uint256 auctionId) public returns (bool) {
         Auction memory _auction = auctions[auctionId];
         if (
@@ -402,6 +440,13 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
+    /**
+    * @dev Allows caller to recover their lost non-highest bids on `auctionId`.
+    * @notice Taxes aren't taken for losers.
+    * @param auctionId  ID of auction.
+    * @param token      Token address caller bid with on `auctionId`.
+    * @return bool Recovery state.
+    */
     function recoverLostBid(uint256 auctionId, IERC20 token) public returns (bool) {
         Auction memory _auction = auctions[auctionId];
         if (
@@ -420,6 +465,18 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         return sent;
     }
 
+    /**
+    * @dev Returns the highest bid for `auctionId`.
+    * @param auctionId ID of auction.
+    * @return highestBidIsInETH     True if the current highest bid is in ETH,
+    *                               false otherwise.
+    * @return highestBidToken       Address of highest bid token, address(0) if
+    *                               above is true, valid if false.
+    * @return highestBid            ETH value or ETH equivalent (for tokens) of
+    *                               the highest bid.
+    * @return highestBidTokenAmount Actual amount of token bid if `highestBidIsInETH`
+    *                               is false.
+    */
     function getHighestBid(uint256 auctionId) public view returns (
         bool highestBidIsInETH,
         IERC20 highestBidToken,
@@ -440,6 +497,9 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
         );
     }
 
+    /// @dev Returns the auction data for `auctionId`.
+    /// @param auctionId ID of auction.
+    /// @return Auction Auction `auctionId`'s data.
     function getAuction(uint256 auctionId) public view returns (Auction memory) {
         // For all auctions, no matter what.
         Auction memory _auction = auctions[auctionId];
