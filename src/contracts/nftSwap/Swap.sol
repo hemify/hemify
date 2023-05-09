@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 import {IEscrow} from "../../interfaces/IEscrow.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {ISwap} from "../../interfaces/ISwap.sol";
+import {ITreasury} from "../../interfaces/ITreasury.sol";
 
 /**
 * @title ISwap
@@ -14,13 +15,17 @@ import {ISwap} from "../../interfaces/ISwap.sol";
 
 contract Swap is ISwap {
     IEscrow escrow;
+    ITreasury treasury;
+
     uint256 public fee = 0.05 ether;
     mapping(bytes32 => Order) private orders;
 
-    constructor(address _escrow) {
+    constructor(address _escrow, address _treasury) {
         if (_escrow == address(0)) revert ZeroAddress();
+        if (_treasury == address(0)) revert ZeroAddress();
 
         escrow = IEscrow(_escrow);
+        treasury = ITreasury(_treasury);
     }
 
     function placeSwapOrder(
@@ -55,6 +60,9 @@ contract Swap is ISwap {
         _order.toId = _toId;
 
         orders[orderId] = _order;
+
+        bool paid = treasury.deposit{value: msg.value}();
+        if (!paid) revert NotSent();
 
         bool sent = escrow.depositNFT(msg.sender, _fromSwap, _fromId);
         if (!sent) revert NotSent();
@@ -94,6 +102,9 @@ contract Swap is ISwap {
         orders[orderId].state = OrderState.COMPLETED;
 
         delete orders[orderId];
+
+        bool paid = treasury.deposit{value: msg.value}();
+        if (!paid) revert NotSent();
 
         bool sent = escrow.depositNFT(msg.sender, _fromSwap, _fromId);
         if (!sent) revert NotSent();
