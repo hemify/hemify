@@ -14,8 +14,8 @@ import {ITreasury} from "../../interfaces/ITreasury.sol";
 */
 
 contract Swap is ISwap {
-    IEscrow escrow;
-    ITreasury treasury;
+    IEscrow internal escrow;
+    ITreasury internal treasury;
 
     uint256 public fee = 0.05 ether;
     mapping(bytes32 => Order) private orders;
