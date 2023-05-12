@@ -52,9 +52,9 @@ import {Taxes} from "../utils/Taxes.sol";
 */
 
 contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
-    IControl control;
-    IEscrow escrow;
-    ITreasury treasury;
+    IControl internal control;
+    IEscrow internal escrow;
+    ITreasury internal treasury;
 
     /// @dev Auction index count.
     uint256 private _index;
