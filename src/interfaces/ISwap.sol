@@ -13,8 +13,7 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 interface ISwap {
     enum OrderState {
         NULL,
-        LISTED,
-        COMPLETED
+        LISTED
     }
 
     /**
@@ -48,20 +47,22 @@ interface ISwap {
 
     /// @dev Errors.
     error InsufficientFees();
+    error NFTNotSupported();
     error NotOwnerOrAuthorized();
     error NotOrderOwner();
     error NotSent();
     error OrderExists();
     error OrderClosed();
     error OrderNotExistent();
+    error OrderOwnerCannotSwap();
     error ZeroAddress();
 
     /**
     * @dev Allows `msg.sender` to submit a new swap order.
-    * @param _fromSwap     NFT address owned by submitter to be swapped.
-    * @param _fromId       NFT ID owned by submitter to be swapped.
-    * @param _toSwap       NFT address wanted by the submitter.
-    * @param _toId         NFT address wanted by the submitter.
+    * @param _fromSwap  NFT address owned by submitter to be swapped.
+    * @param _fromId    NFT ID owned by submitter to be swapped.
+    * @param _toSwap    NFT address wanted by the submitter.
+    * @param _toId      NFT address wanted by the submitter.
     * @return bytes32   Order ID.
     * @return bool      Submission status.
     */
@@ -77,10 +78,10 @@ interface ISwap {
 
     /**
     * @dev Allows `msg.sender` to complete an existing swap order.
-    * @param _fromSwap     NFT address owned by submitter to be swapped.
-    * @param _fromId       NFT ID owned by submitter to be swapped.
-    * @param _toSwap       NFT address wanted by the submitter.
-    * @param _toId         NFT address wanted by the submitter.
+    * @param _fromSwap  NFT address owned by submitter to be swapped.
+    * @param _fromId    NFT ID owned by submitter to be swapped.
+    * @param _toSwap    NFT address wanted by the submitter.
+    * @param _toId      NFT address wanted by the submitter.
     * @return bool      Completion status.
     */
     function completeSwapOrder(
