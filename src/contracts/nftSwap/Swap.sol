@@ -95,6 +95,7 @@ contract Swap is ISwap {
         );
 
         if (_orderExists(orderId)) revert OrderExists();
+        if (_toSwap.ownerOf(_toId) == address(0)) revert SwapNFTNonExistent();
         if (msg.value < fee) revert InsufficientFees();
 
         uint256 balance = msg.value - fee;

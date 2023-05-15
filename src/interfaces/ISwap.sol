@@ -55,6 +55,7 @@ interface ISwap {
     error OrderClosed();
     error OrderNotExistent();
     error OrderOwnerCannotSwap();
+    error SwapNFTNonExistent();
     error ZeroAddress();
 
     /**
