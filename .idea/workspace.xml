@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3944fe08-65ba-4f03-9463-766a2133401a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/contracts/nftSwap/Swap.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/nftSwap/Swap.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/interfaces/ISwap.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/ISwap.sol" afterDir="false" />
     </list>
