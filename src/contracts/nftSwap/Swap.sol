@@ -36,6 +36,7 @@ contract Swap is ISwap {
     ITreasury internal treasury;
 
     uint256 public fee = 0.05 ether;
+    uint256 public markUpLimit = 2 ether;
     mapping(bytes32 => Order) private orders;
 
     constructor(
@@ -68,6 +69,7 @@ contract Swap is ISwap {
     * @param _fromId    NFT ID owned by submitter to be swapped.
     * @param _toSwap    NFT address wanted by the submitter.
     * @param _toId      NFT address wanted by the submitter.
+    * @param _markUp    Extra money to be added by the 'completer' to make swap.
     * @return bytes32   Order ID.
     * @return bool      Submission status.
     */
@@ -75,7 +77,8 @@ contract Swap is ISwap {
         IERC721 _fromSwap,
         uint256 _fromId,
         IERC721 _toSwap,
-        uint256 _toId
+        uint256 _toId,
+        uint256 _markUp
     )
         external
         payable
@@ -86,6 +89,8 @@ contract Swap is ISwap {
 
         if (!_isOwnerOrAuthorized(_fromSwap, _fromId, msg.sender))
             revert NotOwnerOrAuthorized();
+
+        if (_markUp > markUpLimit) revert HighMarkUp();
 
         bytes32 orderId = _getOrderId(
             _fromSwap,
@@ -107,6 +112,7 @@ contract Swap is ISwap {
         _order.fromId = _fromId;
         _order.toSwap = _toSwap;
         _order.toId = _toId;
+        _order.markUp = _markUp;
 
         orders[orderId] = _order;
 
@@ -165,13 +171,14 @@ contract Swap is ISwap {
         );
 
         if (!_orderExists(orderId)) revert OrderNotExistent();
-        if (msg.value < fee) revert InsufficientFees();
+
+        uint256 _markUp = orders[orderId].markUp;
+        if (msg.value < (fee + _markUp)) revert InsufficientFees();
 
         address _orderOwner = orders[orderId].orderOwner;
-
         if (_orderOwner == msg.sender) revert OrderOwnerCannotSwap();
 
-        uint256 balance = msg.value - fee;
+        uint256 balance = msg.value - (fee + _markUp);
 
         /// @dev    Updates orders[orderId] variables to default before proceeding.
         ///         orders[orderId].state is set to NULL here.
@@ -190,8 +197,15 @@ contract Swap is ISwap {
         bool swapToReceiver = escrow.sendNFT(_toSwap, _toId, msg.sender);
         if (!swapToReceiver) revert NotSent();
 
-        (bool refund, ) = payable(msg.sender).call{value: balance}("");
-        if (!refund) revert NotSent();
+        if (_markUp != 0) {
+            (bool payMarkUp, ) = payable(_orderOwner).call{value: _markUp}("");
+            if (!payMarkUp) revert NotSent();
+        }
+
+        if (balance != 0) {
+            (bool refund, ) = payable(msg.sender).call{value: balance}("");
+            if (!refund) revert NotSent();
+        }
 
         emit OrderCompleted(orderId, msg.sender);
 

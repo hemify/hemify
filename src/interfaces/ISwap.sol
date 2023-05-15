@@ -33,6 +33,7 @@ interface ISwap {
         uint256 fromId;
         IERC721 toSwap;
         uint256 toId;
+        uint256 markUp;
     }
 
     /// @dev    Emitted when an order is cancelled, completed or placed,
@@ -46,6 +47,7 @@ interface ISwap {
     event OrderPlaced(bytes32 indexed orderId);
 
     /// @dev Errors.
+    error HighMarkUp();
     error InsufficientFees();
     error NFTNotSupported();
     error NotOwnerOrAuthorized();
@@ -64,6 +66,7 @@ interface ISwap {
     * @param _fromId    NFT ID owned by submitter to be swapped.
     * @param _toSwap    NFT address wanted by the submitter.
     * @param _toId      NFT address wanted by the submitter.
+    * @param _markUp    Extra money to be added by the 'completer' to make swap.
     * @return bytes32   Order ID.
     * @return bool      Submission status.
     */
@@ -71,7 +74,8 @@ interface ISwap {
         IERC721 _fromSwap,
         uint256 _fromId,
         IERC721 _toSwap,
-        uint256 _toId
+        uint256 _toId,
+        uint256 _markUp
     )
         external
         payable
