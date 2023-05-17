@@ -7,13 +7,13 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /**
-* @title IControl
+* @title IHemifyControl
 * @author fps (@0xfps).
-* @dev  Control contract interface.
-*       This interface controls the `Control` contract.
+* @dev  HemifyControl contract interface.
+*       This interface controls the `HemifyControl` contract.
 */
 
-interface IControl {
+interface IHemifyControl {
     /// @dev    Events for different supports and revokes of tokens for payments.
     /// @notice token IERC20 token address supported or revoked.
     event TokenSupportedForAuction(IERC20 indexed token);

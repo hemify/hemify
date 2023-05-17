@@ -3,27 +3,27 @@ pragma solidity 0.8.19;
 
 import {AggregatorV3Interface}
     from "chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-import {IControl} from "../../interfaces/IControl.sol";
+import {IHemifyControl} from "../../interfaces/IHemifyControl.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {IEscrow} from "../../interfaces/IEscrow.sol";
-import {IOpenAuctionV1} from "../../interfaces/IOpenAuctionV1.sol";
-import {ITreasury} from "../../interfaces/ITreasury.sol";
+import {IHemifyEscrow} from "../../interfaces/IHemifyEscrow.sol";
+import {IHemifyAuctionV1} from "../../interfaces/IHemifyAuctionV1.sol";
+import {IHemifyTreasury} from "../../interfaces/IHemifyTreasury.sol";
 
 import {PriceChecker} from "../utils/PriceChecker.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Taxes} from "../utils/Taxes.sol";
 
 /**
-* @title OpenAuctionV1.
+* @title HemifyAuctionV1.
 * @author fps (@0xfps).
 * @dev  Core Auction Contract.
 * @custom:owner     BotBuddyz.
 * @custom:version   0.0.1.
 * @notice   NFT Auction contract. NFTs are listed by the owner or an approved
 *           personnel via the `list()` function. This will return the `id` of the
-*           auction. The NFT is sent to the `Escrow` contract for the duration of
-*           the auction.
+*           auction. The NFT is sent to the `HemifyEscrow` contract for the duration
+*           of the auction.
 *
 *           Auctions can be closed at any time on the condition that there have been
 *           no bids on it.
@@ -51,10 +51,10 @@ import {Taxes} from "../utils/Taxes.sol";
 *           be cancelled, rather, reclaimed.
 */
 
-contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
-    IControl internal control;
-    IEscrow internal escrow;
-    ITreasury internal treasury;
+contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
+    IHemifyControl internal control;
+    IHemifyEscrow internal escrow;
+    IHemifyTreasury internal treasury;
 
     /// @dev Auction index count.
     uint256 private _index;
@@ -77,9 +77,9 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
             _treasury == address(0)
         ) revert ZeroAddress();
 
-        control = IControl(_control);
-        escrow = IEscrow(_escrow);
-        treasury = ITreasury(_treasury);
+        control = IHemifyControl(_control);
+        escrow = IHemifyEscrow(_escrow);
+        treasury = IHemifyTreasury(_treasury);
     }
 
     /// @dev Handle incoming funds by sending them to treasury.
@@ -97,7 +97,7 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
     *       for auction.
     * @notice   Auctioneers are allowed to list any NFT that they own or are
     *           approved to spend by the owner. Of course, before NFTs are listed
-    *           for auction, the `Escrow` contract must be first approved via a
+    *           for auction, the `HemifyEscrow` contract must be first approved via a
     *           `setApprovalForAll()` in the `ERC721` NFT contract.
     *
     *           Auction min prices cannot be `0`.
@@ -208,7 +208,7 @@ contract OpenAuctionV1 is IOpenAuctionV1, PriceChecker, Taxes {
     * @dev Allows `msg.sender` to make a token bid on an existing auction.
     * @notice   Allows anyone to make a token bid on an existing auction.
     *           Auction must exist and will be LIVE.
-    *           Tokens will only be approved tokens in `Control`.
+    *           Tokens will only be approved tokens in `HemifyControl`.
     *           All token amount sent will be evaluated to their ETH worth at
     *           the time of bidding (and `bid()` logic runs).
     *           Bids must be higher than `minPrice` (for first bid) and

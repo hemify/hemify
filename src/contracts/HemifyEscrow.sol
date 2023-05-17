@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.19;
 
-import {IEscrow} from "../interfaces/IEscrow.sol";
+import {IHemifyEscrow} from "../interfaces/IHemifyEscrow.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
@@ -9,15 +9,15 @@ import {Gated, SimpleMultiSig} from "./utils/Gated.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
- * @title Escrow
+ * @title HemifyEscrow
  * @author fps (@0xfps).
- * @dev  Escrow contract.
+ * @dev  HemifyEscrow contract.
  *       A contract to hold NFTs during auction duration.
  *       Any contract can interact with this contract as long as it's been
  *       `allow`ed by this contract via the `Gated` contract via multisig.
  */
 
-contract Escrow is IEscrow, IERC721Receiver, Gated, ReentrancyGuard {
+contract Escrow is IHemifyEscrow, IERC721Receiver, Gated, ReentrancyGuard {
     /// @dev Initialize protective multi-sig of at least 5 addresses.
     /// @param _addresses 5 or more addresses for multi-sig protection.
     constructor(address[] memory _addresses) 

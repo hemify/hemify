@@ -2,7 +2,7 @@
 pragma solidity 0.8.19;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ITreasury} from "../interfaces/ITreasury.sol";
+import {IHemifyTreasury} from "../interfaces/IHemifyTreasury.sol";
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -10,7 +10,7 @@ import {Gated, SimpleMultiSig} from "./utils/Gated.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
- * @title Treasury
+ * @title HemifyTreasury
  * @author fps (@0xfps).
  * @dev  Treasury contract.
  *       A contract to hold all tokens and ETH.
@@ -18,7 +18,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
  *       `allow`ed by this contract.
  */
 
-contract Treasury is ITreasury, Gated, ReentrancyGuard {
+contract HemifyTreasury is IHemifyTreasury, Gated, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     /// @dev Initialize protective multi-sig of at least 5 addresses.
@@ -34,7 +34,7 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         emit ETHDeposit(msg.value);
     }
 
-    /// @inheritdoc ITreasury
+    /// @inheritdoc IHemifyTreasury
     /// @return bool Status.
     function deposit() external payable onlyAllowed returns (bool) {
         emit ETHDeposit(msg.value);
@@ -91,7 +91,7 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
     /**
     * @dev Deposits `amount` amount of `token` tokens from `from` to this contract.
     * @notice   This contract will be approved by `from` to allow easy deposits, but
-    *           will only be callable by the OpenAuction or any other added contract.
+    *           will only be callable by the HemifyAuction or any other added contract.
     *           Assertion that the difference between the token balance of the contract
     *           after deposit and before deposit is >= the amount deposited is made.
     * @param from   Sender.
@@ -111,7 +111,7 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
         /// @dev Checks of IERC20 being supported are done in the Auction.
         uint256 prevBal = token.balanceOf(address(this));
 
-        /// @dev    `from` must approve Treasury address to move funds
+        /// @dev    `from` must approve HemifyTreasury address to move funds
         ///         via approve().
         token.safeTransferFrom(from, address(this), amount);
 
@@ -124,7 +124,7 @@ contract Treasury is ITreasury, Gated, ReentrancyGuard {
 
     /**
     * @dev Sends `amount` amount of `token` tokens to `to` from this contract.
-    * @notice   Assertions as to balances are not made as function is non-reentrant.
+    * @notice Assertions as to balances are not made as function is non-reentrant.
     * @param token  Token.
     * @param to     Sender.
     * @param amount Amount to send, which will always be <= this contract's balance.
