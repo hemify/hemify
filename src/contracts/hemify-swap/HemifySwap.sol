@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.19;
 
-import {IControl} from "../../interfaces/IControl.sol";
-import {IEscrow} from "../../interfaces/IEscrow.sol";
+import {IHemifyControl} from "../../interfaces/IHemifyControl.sol";
+import {IHemifyEscrow} from "../../interfaces/IHemifyEscrow.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {ISwap} from "../../interfaces/ISwap.sol";
-import {ITreasury} from "../../interfaces/ITreasury.sol";
+import {IHemifySwap} from "../../interfaces/IHemifySwap.sol";
+import {IHemifyTreasury} from "../../interfaces/IHemifyTreasury.sol";
 
 /**
-* @title Swap
+* @title HemifySwap
 * @author fps (@0xfps).
-* @dev  Swap contract.
+* @dev  HemifySwap contract.
 * @notice   This contract allows two parties to swap their NFTs via an
 *           order book model approach.
 *
@@ -30,12 +30,14 @@ import {ITreasury} from "../../interfaces/ITreasury.sol";
 *           Orders set to LISTED can as well be deleted by their 'placer'.
 */
 
-contract Swap is ISwap {
-    IControl internal control;
-    IEscrow internal escrow;
-    ITreasury internal treasury;
+contract HemifySwap is IHemifySwap {
+    IHemifyControl internal control;
+    IHemifyEscrow internal escrow;
+    IHemifyTreasury internal treasury;
 
+    // Set now, variable later.
     uint256 public fee = 0.05 ether;
+    // Set now, variable later.
     uint256 public markUpLimit = 2 ether;
     mapping(bytes32 => Order) private orders;
 
@@ -51,9 +53,9 @@ contract Swap is ISwap {
             _treasury == address(0)
         ) revert ZeroAddress();
 
-        control = IControl(_control);
-        escrow = IEscrow(_escrow);
-        treasury = ITreasury(_treasury);
+        control = IHemifyControl(_control);
+        escrow = IHemifyEscrow(_escrow);
+        treasury = IHemifyTreasury(_treasury);
     }
 
     /**

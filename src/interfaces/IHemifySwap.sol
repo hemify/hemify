@@ -4,13 +4,13 @@ pragma solidity 0.8.19;
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /**
-* @title ISwap
+* @title IHemifySwap
 * @author fps (@0xfps).
-* @dev  Swap contract interface.
-*       This interface controls the `Swap` contract.
+* @dev  HemifySwap contract interface.
+*       This interface controls the `HemifySwap` contract.
 */
 
-interface ISwap {
+interface IHemifySwap {
     enum OrderState {
         NULL,
         LISTED

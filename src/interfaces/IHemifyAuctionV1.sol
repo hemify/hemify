@@ -5,13 +5,13 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /**
-* @title IOpenAuctionV1
+* @title IHemifyAuctionV1
 * @author fps (@0xfps).
-* @dev  Open Auction V1 contract interface.
-*       This interface controls the basic functionalities on the `OpenAuction` contract.
+* @dev  HemifyAuction V1 contract interface.
+*       This interface controls the basic functionalities on the `HemifyAuction` contract.
 */
 
-interface IOpenAuctionV1 {
+interface IHemifyAuctionV1 {
     /**
     * @dev  Specifies the current state of the auction.
     *       DORMANT:   Auction has not yet begun.
