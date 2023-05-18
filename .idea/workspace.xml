@@ -5,17 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3944fe08-65ba-4f03-9463-766a2133401a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/contracts/hemify-wager/HemifyWager.sol" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/interfaces/IHemifyWager.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/contracts/Control.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/HemifyControl.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/contracts/Escrow.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/HemifyEscrow.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/contracts/OpenAuctionV1/OpenAuctionV1.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/hemify-auction-v1/HemifyAuctionV1.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/contracts/Treasury.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/HemifyTreasury.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/contracts/nftSwap/Swap.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/hemify-swap/HemifySwap.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/IControl.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IHemifyControl.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/IEscrow.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IHemifyEscrow.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/IOpenAuctionV1.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IHemifyAuctionV1.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/ISwap.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IHemifySwap.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/ITreasury.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IHemifyTreasury.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IHemifyTreasury.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IHemifyTreasury.sol" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

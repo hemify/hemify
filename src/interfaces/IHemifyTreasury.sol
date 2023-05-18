@@ -4,12 +4,12 @@ pragma solidity 0.8.19;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
- * @title IHemifyTreasury
- * @author fps (@0xfps).
- * @dev  HemifyTreasury contract interface.
- *       This interface controls the `HemifyTreasury` contract.
- *       HemifyTreasury holds ETH and tokens over the course of the auction.
- */
+* @title IHemifyTreasury
+* @author fps (@0xfps).
+* @dev  HemifyTreasury contract interface.
+*       This interface controls the `HemifyTreasury` contract.
+*       HemifyTreasury holds ETH and tokens over the course of the auction.
+*/
 
 interface IHemifyTreasury {
     /// @dev Events for different actions.
