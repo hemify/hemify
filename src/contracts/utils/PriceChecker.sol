@@ -20,7 +20,8 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 abstract contract PriceChecker {
     error BelowZero();
 
-    AggregatorV3Interface constant ETH_TO_USD = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+    AggregatorV3Interface internal constant ETH_TO_USD =
+        AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
 
     function convertToETH(
         AggregatorV3Interface agg,
