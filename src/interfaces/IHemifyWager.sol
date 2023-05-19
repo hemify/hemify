@@ -17,6 +17,22 @@ interface IHemifyWager {
     error NotDeposited();
     error NotPaid();
     error ZeroAddress();
+
+    /**
+    * @dev Makes a new wager from `from`.
+    * @param from   Address making wager.
+    * @param token  `USDC` or `USDT`.
+    * @param amount Amount of tokens to wager with.
+    * @return bool Wagering status.
+    */
     function makeWager(address from, IERC20 token, uint256 amount) external returns (bool);
+
+    /**
+    * @dev Makes payment to winning wager address `to`.
+    * @param token  `USDC` or `USDT`.
+    * @param to     Address receiving wager payment.
+    * @param amount Amount of tokens to wager with.
+    * @return bool Payment status.
+    */
     function payWager(IERC20 token, address to, uint256 amount) external returns (bool);
 }
