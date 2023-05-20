@@ -46,10 +46,9 @@ contract HemifyWager is IHemifyWager, Ownable2Step {
         if ((token != USDC) && (token != USDT)) revert NotAllowedToken();
 
         /// @dev `msg.sender` will approve HemifyTreasury.
-        bool wagerMade = treasury.deposit(from, token, amount);
-        if (!wagerMade) revert NotDeposited();
+        if (!treasury.deposit(from, token, amount)) revert NotDeposited();
 
-        return wagerMade;
+        return true;
     }
 
     /**
@@ -66,9 +65,8 @@ contract HemifyWager is IHemifyWager, Ownable2Step {
     {
         if ((token != USDC) && (token != USDT)) revert NotAllowedToken();
 
-        bool wagerPaid = treasury.sendPayment(token, to, amount);
-        if (!wagerPaid) revert NotPaid();
+        if (!treasury.sendPayment(token, to, amount)) revert NotPaid();
 
-        return wagerPaid;
+        return true;
     }
 }
