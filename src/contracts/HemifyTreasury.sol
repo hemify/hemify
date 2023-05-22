@@ -10,19 +10,20 @@ import {Gated, SimpleMultiSig} from "./utils/Gated.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
- * @title HemifyTreasury
- * @author fps (@0xfps).
- * @dev  Treasury contract.
- *       A contract to hold all tokens and ETH.
- *       Any contract can interact with this contract as long as it's been
- *       `allow`ed by this contract.
- */
+* @title HemifyTreasury
+* @author fps (@0xfps).
+* @custom:version 1.0.0
+* @dev  Treasury contract.
+*       A contract to hold tokens and ETH.
+*       Any contract can interact with this contract as long as it's been
+*       `allow`ed by this contract.
+*/
 
 contract HemifyTreasury is IHemifyTreasury, Gated, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    /// @dev Initialize protective multi-sig of at least 5 addresses.
-    /// @param _addresses 5 or more addresses for multi-sig protection.
+    /// @dev Initialize protective multi sig of at least 5 addresses.
+    /// @param _addresses 5 or more addresses for multi sig protection.
     constructor(address[] memory _addresses) 
         SimpleMultiSig(_addresses) {}
 
@@ -42,13 +43,13 @@ contract HemifyTreasury is IHemifyTreasury, Gated, ReentrancyGuard {
     }
 
     /**
-    * @dev Sends an amount of ETH from this contract to `to`.
-    * @notice   Only allowed address and can call this contract.
-    *           Amount to send must be less than the amount in balance.
+    * @dev Sends amount `amount` of ETH from this contract to `to`.
+    * @notice   Only `allow`ed address and can call this contract.
+    *           Amount to send must be <= the amount in balance.
     *           Also, `to` must not be a zero address.
     * @param to     Receiver.
     * @param amount Amount to send.
-    * @return bool  Status.
+    * @return bool Status.
     */
     function sendPayment(
         address to,
@@ -72,13 +73,15 @@ contract HemifyTreasury is IHemifyTreasury, Gated, ReentrancyGuard {
 
     /**
     * @dev Withdraws all funds in the contract.
-    * @notice   All addresses in the multisig must sign for this function
-    *           to succeed.
-    *           OnlyOwner can call this contract.
-    * @return bool  Status.
+    * @notice   All addresses in the multi sig must sign for this function
+    *           to succeed. And it resets the multi sig before transfer call.
+    *           Only owner can call this function.
+    * @return bool Status.
     */
     function withdraw() public allSigned onlyOwner returns (bool) {
         uint256 amount = address(this).balance;
+
+        _reset();
 
         (bool success, ) = payable(owner()).call{value: amount}("");
         if (!success) revert NotSent();
@@ -91,13 +94,13 @@ contract HemifyTreasury is IHemifyTreasury, Gated, ReentrancyGuard {
     /**
     * @dev Deposits `amount` amount of `token` tokens from `from` to this contract.
     * @notice   This contract will be approved by `from` to allow easy deposits, but
-    *           will only be callable by the HemifyAuction or any other added contract.
+    *           will only be callable by the `HemifyAuction` or any other `allow`ed contract.
     *           Assertion that the difference between the token balance of the contract
     *           after deposit and before deposit is >= the amount deposited is made.
     * @param from   Sender.
     * @param token  Token.
     * @param amount Amount to send, which will always be <= `from`'s balance.
-    * @return bool  Status.
+    * @return bool Status.
     */
     function deposit(
         address from,
@@ -111,8 +114,8 @@ contract HemifyTreasury is IHemifyTreasury, Gated, ReentrancyGuard {
         /// @dev Checks of IERC20 being supported are done in the Auction.
         uint256 prevBal = token.balanceOf(address(this));
 
-        /// @dev    `from` must approve HemifyTreasury address to move funds
-        ///         via approve().
+        /// @dev    `from` must approve `HemifyTreasury` address to move funds
+        ///         via `approve()`.
         token.safeTransferFrom(from, address(this), amount);
 
         assert((token.balanceOf(address(this)) - prevBal) >= amount);
@@ -128,7 +131,7 @@ contract HemifyTreasury is IHemifyTreasury, Gated, ReentrancyGuard {
     * @param token  Token.
     * @param to     Sender.
     * @param amount Amount to send, which will always be <= this contract's balance.
-    * @return bool  Status.
+    * @return bool Status.
     */
     function sendPayment(
         IERC20 token,
@@ -153,9 +156,12 @@ contract HemifyTreasury is IHemifyTreasury, Gated, ReentrancyGuard {
 
     /**
     * @dev Sends `amount` amount of `token` tokens to `owner()`.
+    * @notice   All addresses in the multi sig must sign for this function
+    *           to succeed. And it resets the multi sig before transfer call.
+    *           Only owner can call this function.
     * @param token  Token.
     * @param amount Amount to send, which will always be <= this contract's balance.
-    * @return bool  Status.
+    * @return bool Status.
     */
     function withdraw(
         IERC20 token,
@@ -167,6 +173,8 @@ contract HemifyTreasury is IHemifyTreasury, Gated, ReentrancyGuard {
         returns (bool)
     {
         if (amount > token.balanceOf(address(this))) revert LowBalance();
+
+        _reset();
 
         token.safeTransfer(owner(), amount);
 

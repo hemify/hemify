@@ -11,19 +11,27 @@ pragma solidity 0.8.19;
 abstract contract SimpleMultiSig {
     uint8 private immutable SIZE;
     uint8 private signCount;
+    address[] internal addresses;
+
     mapping(address => bool) private signers;
     mapping(address => bool) private signed;
 
-    error NotInSignerList();
+    error MultipleAddresses();
     error MultiSigIncomplete();
+    error NotInSignerList();
 
+    /// @dev    Care should be taken using this constructor.
+    ///         It is VITAL that `_addresses` must be <= 256 elements.
+    ///         Else, it can underflow during `uint8()` cast.
     constructor(address[] memory _addresses) {
         uint8 len = uint8(_addresses.length);
-        if ((len < 5) || (len > 100)) revert();
+        if ((len < 5) || (len > 10)) revert();
 
         SIZE = len;
+        addresses = _addresses;
 
         for (uint8 i; i != len; ) {
+            if (signers[_addresses[i]]) revert MultipleAddresses();
             signers[_addresses[i]] = true;
             unchecked { ++i; }
         }
@@ -49,6 +57,17 @@ abstract contract SimpleMultiSig {
         if (signed[msg.sender]) {
             signed[msg.sender] = false;
             --signCount;
+        }
+    }
+
+    function _reset() internal {
+        delete signCount;
+
+        uint8 len = uint8(addresses.length);
+
+        for (uint8 i; i != len; ) {
+            signed[addresses[i]] = false;
+            unchecked { ++i; }
         }
     }
 }

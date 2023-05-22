@@ -1,43 +1,44 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.19;
 
-import {IHemifyEscrow} from "../interfaces/IHemifyEscrow.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import {IHemifyEscrow} from "../interfaces/IHemifyEscrow.sol";
 
 import {Gated, SimpleMultiSig} from "./utils/Gated.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
- * @title HemifyEscrow
- * @author fps (@0xfps).
- * @dev  HemifyEscrow contract.
- *       A contract to hold NFTs during auction duration.
- *       Any contract can interact with this contract as long as it's been
- *       `allow`ed by this contract via the `Gated` contract via multisig.
- */
+* @title HemifyEscrow
+* @author fps (@0xfps).
+* @custom:version 1.0.0
+* @dev  HemifyEscrow contract.
+*       A contract to hold NFTs during auction and swap durations.
+*       Any contract can interact with this contract as long as it's been
+*       `allow`ed by this contract via the `Gated` contract via multi sig.
+*/
 
 contract Escrow is IHemifyEscrow, IERC721Receiver, Gated, ReentrancyGuard {
-    /// @dev Initialize protective multi-sig of at least 5 addresses.
-    /// @param _addresses 5 or more addresses for multi-sig protection.
-    constructor(address[] memory _addresses) 
+    /// @dev Initialize protective multi sig of at least 5 addresses.
+    /// @param _addresses 5 or more addresses for multi sig protection.
+    constructor(address[] memory _addresses)
         SimpleMultiSig(_addresses) {}
 
     /**
-     * @dev Accepts `nft` from `from`.
-     * @notice   This function is callable by any address `allow`ed by this
-     *           contract. To see how addresses can be `allow`ed, checkout
-     *           utils/Gated.sol.
-     *           NFTs are asserted to be owned by this contract after transfer.
-     *           This contract will be approved by `from` to move NFTs via the
-     *           `setApprovalForAll()` function in OpenZeppelin's ERC721 implementation.
-     *           Also, `from` must be the owner, or is approved by the owner of the NFT
-     *           for transfers.
-     * @param from   NFT owner or approved spender.
-     * @param nft    NFT address.
-     * @param id     NFT id.
-     * @return bool  Status of NFT transfer and ownership.
-     */
+    * @dev Accepts `nft` from `from`.
+    * @notice   This function is callable by any address `allow`ed by this
+    *           contract. To see how addresses can be `allow`ed, checkout
+    *           [utils/Gated.sol](http://rb.gy/v7s8u).
+    *           NFTs are asserted to be owned by this contract after transfer.
+    *           This contract will be approved by `from` to move NFTs via the
+    *           `setApprovalForAll()` function in OpenZeppelin's ERC721 implementation.
+    *           Also, `from` must be the owner, or is approved by the owner of the NFT
+    *           for transfers.
+    * @param from  NFT owner or approved spender.
+    * @param nft   NFT address.
+    * @param id    NFT ID.
+    * @return bool  Status of NFT transfer and ownership.
+    */
     function depositNFT(
         address from,
         IERC721 nft,
@@ -48,7 +49,6 @@ contract Escrow is IHemifyEscrow, IERC721Receiver, Gated, ReentrancyGuard {
         returns (bool)
     {
         // All NFTs are supported for auctions.
-        // NFTs for swap are gated on the swap contracts.
         address nftOwner = nft.ownerOf(id);
 
         if (
@@ -57,8 +57,8 @@ contract Escrow is IHemifyEscrow, IERC721Receiver, Gated, ReentrancyGuard {
             (!nft.isApprovedForAll(nftOwner, from))
         ) revert NotOwnerOrAuthorized();
 
-        /// @dev    Caller must set isApprovedForAll() for this call
-        ///         to be successful.
+        /// @dev    Caller must set `isApprovedForAll()` to `true` for
+        ///         for this contract for this call to be successful.
         nft.safeTransferFrom(from, address(this), id);
 
         assert(nft.ownerOf(id) == address(this));
@@ -69,18 +69,18 @@ contract Escrow is IHemifyEscrow, IERC721Receiver, Gated, ReentrancyGuard {
     }
 
     /**
-     * @dev Sends an `nft` to `to`.
-     * @notice   This function sends nft id `id` from this contract
-     *           to `to`. Grounds are that nft `id` must be owned by
-     *           this contract and `to` is not a zero address and
-     *           is also not this contract. Just like `depositNFT()`,
-     *           it is only callable by addresses `allow`ed by this
-     *           contract.
-     * @param nft    NFT address.
-     * @param id     NFT id.
-     * @param to     Receiver.
-     * @return bool  Status of NFT transfer and ownership.
-     */
+    * @dev Sends an `nft` to `to`.
+    * @notice   This function sends nft id `id` from this contract
+    *           to `to`. Grounds are that nft `id` must be owned by
+    *           this contract and `to` is not a zero address and
+    *           is also not this contract. Just like `depositNFT()`,
+    *           it is only callable by addresses `allow`ed by this
+    *           contract.
+    * @param nft   NFT address.
+    * @param id    NFT ID.
+    * @param to    Receiver.
+    * @return bool  Status of NFT transfer and ownership.
+    */
     function sendNFT(
         IERC721 nft,
         uint256 id,
