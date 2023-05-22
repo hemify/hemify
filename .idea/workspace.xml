@@ -6,14 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="3944fe08-65ba-4f03-9463-766a2133401a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Deployment.md" beforeDir="false" afterPath="$PROJECT_DIR$/Deployment.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/IHemifyAuctionV1.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IHemifyAuctionV1.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/IHemifyControl.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IHemifyControl.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/contracts/HemifyControl.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/HemifyControl.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/contracts/HemifyEscrow.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/HemifyEscrow.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/contracts/HemifyTreasury.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/HemifyTreasury.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/contracts/utils/PriceChecker.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/utils/PriceChecker.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/contracts/utils/SimpleMultiSig.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/utils/SimpleMultiSig.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/interfaces/IHemifyEscrow.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IHemifyEscrow.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/IHemifyExchange.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IHemifyExchange.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/IHemifySwap.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IHemifySwap.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/IHemifyTreasury.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/IHemifyTreasury.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/uniswap/IUniswapV2Router02.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/uniswap/IUniswapV2Router02.sol" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,6 +20,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />

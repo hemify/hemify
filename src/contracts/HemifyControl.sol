@@ -3,23 +3,24 @@ pragma solidity 0.8.19;
 
 import {AggregatorV3Interface}
     from "chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-import {IHemifyControl} from "../interfaces/IHemifyControl.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IHemifyControl} from "../interfaces/IHemifyControl.sol";
 
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 /**
 * @title HemifyControl
 * @author fps (@0xfps).
+* @custom:version 1.0.0
 * @dev  HemifyControl contract.
-*       A contract for setting and revoking support for a particular IERC20 tokens,
-*       making them acceptable as a means of making bids for listed auctions.
+*       A contract for setting and revoking support for particular IERC20 tokens,
+*       making them acceptable as means of making bids for listed auctions.
 */
 
 contract HemifyControl is IHemifyControl, Ownable2Step {
     mapping(IERC20 => AggregatorV3Interface) private supportedTokens;
-    mapping(IERC721 => bool) public supportedSwapNFTs;
+    mapping(IERC721 => bool) private supportedSwapNFTs;
 
     /**
     * @inheritdoc IHemifyControl

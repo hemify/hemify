@@ -34,7 +34,7 @@ interface IHemifyEscrow {
         returns (bool);
 
     /// @dev Sends `nft` ID `id` to `to`.
-    /// @notice View [src/contracts/HemifyEscrow.sol] for details.
+    /// @notice View [src/contracts/HemifyEscrow.sol](http://rb.gy/3w8pe) for details.
     function sendNFT(IERC721 nft, uint256 id, address to)
         external
         returns (bool);
