@@ -6,11 +6,17 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 /**
 * @title IHemifySwap
 * @author fps (@0xfps).
+* @custom:version 1.0.0
 * @dev  HemifySwap contract interface.
 *       This interface controls the `HemifySwap` contract.
 */
 
 interface IHemifySwap {
+    /**
+    * @dev  Swap status.
+    *       `NULL`: No swap or swap completed.
+    *       `LISTED`: Swap in progress.
+    */
     enum OrderState {
         NULL,
         LISTED
@@ -19,12 +25,14 @@ interface IHemifySwap {
     /**
     * @dev    This is the basic structure of a swap order as
     *         configured by the `orderOwner` and the "orderCompleter".
-    * @param state        Current state of the order.
-    * @param orderOwner   Order submitter.
-    * @param fromSwap     NFT address owned by submitter to be swapped.
-    * @param fromId       NFT ID owned by submitter to be swapped.
-    * @param toSwap       NFT address wanted by the submitter.
-    * @param toId         NFT address wanted by the submitter.
+    * @param state      Current state of the order.
+    * @param orderOwner Order submitter.
+    * @param fromSwap   NFT address owned by submitter to be swapped.
+    * @param fromId     NFT ID owned by submitter to be swapped.
+    * @param toSwap     NFT address wanted by the submitter.
+    * @param toId       NFT ID wanted by the submitter.
+    * @param markUp     Amount of ETH `orderOwner` wants + `toSwap`as a
+    *                   counter balance.
     */
     struct Order {
         OrderState state;
@@ -36,7 +44,7 @@ interface IHemifySwap {
         uint256 markUp;
     }
 
-    /// @dev    Emitted when an order is cancelled, completed or placed,
+    /// @dev    Emitted when an order is cancelled, completed and placed,
     ///         respectively.
     /// @param orderId Order ID.
     event OrderCancelled(bytes32 indexed orderId);
@@ -50,11 +58,11 @@ interface IHemifySwap {
     error HighMarkUp();
     error InsufficientFees();
     error NFTNotSupported();
-    error NotOwnerOrAuthorized();
     error NotOrderOwner();
+    error NotOwnerOrAuthorized();
     error NotSent();
-    error OrderExists();
     error OrderClosed();
+    error OrderExists();
     error OrderNotExistent();
     error OrderOwnerCannotSwap();
     error SwapNFTNonExistent();
@@ -82,7 +90,8 @@ interface IHemifySwap {
         returns (bytes32, bool);
 
     /**
-    * @dev Allows `msg.sender` to complete an existing swap order.
+    * @dev Allows `msg.sender` to complete a `LISTED` swap order.
+    * @notice `msg.sender` will not be the `orderOwner`.
     * @param _fromSwap  NFT address owned by submitter to be swapped.
     * @param _fromId    NFT ID owned by submitter to be swapped.
     * @param _toSwap    NFT address wanted by the submitter.
@@ -99,12 +108,12 @@ interface IHemifySwap {
         payable
         returns (bool);
 
-    /// @dev Allows `msg.sender` to cancel an existing swap order.
+    /// @dev Allows `msg.sender` to cancel an existing swap order they own.
     /// @param _orderId Order ID.
     /// @return bool Cancellation status.
     function cancelSwapOrder(bytes32 _orderId) external returns (bool);
 
-    /// @dev Allows anyone to see the details of an existing order.
+    /// @dev Allows anyone to see the details of a `LISTED` order.
     /// @param _orderId Order ID.
     /// @return struct Order struct.
     function getSwapOrder(bytes32 _orderId) external view returns (Order memory);
