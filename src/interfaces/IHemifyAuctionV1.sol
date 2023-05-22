@@ -7,17 +7,18 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 /**
 * @title IHemifyAuctionV1
 * @author fps (@0xfps).
+* @custom:version 1.0.0
 * @dev  HemifyAuction V1 contract interface.
-*       This interface controls the basic functionalities on the `HemifyAuction` contract.
+*       This interface controls the basic functionalities of the `HemifyAuction` contract.
 */
 
 interface IHemifyAuctionV1 {
     /**
     * @dev  Specifies the current state of the auction.
-    *       DORMANT:   Auction has not yet begun.
-    *       LIVE:      Auction has started.
-    *       RESOLED:   Auction has ended and is resolved.
-    *       CLAIMED:   Winner has taken their owned NFT.
+    *       `DORMANT`:   Auction has not yet begun.
+    *       `LIVE`:      Auction has started.
+    *       `RESOLED`:   Auction has ended and is resolved.
+    *       `CLAIMED`:   Winner has taken their owned NFT.
     */
     enum AuctionState {
         DORMANT,
@@ -30,11 +31,11 @@ interface IHemifyAuctionV1 {
     * @dev Auction data. Each auction will have these.
     * @param state                  Auction state.
     * @param highestBidIsInETH      `true` if the current highest bid is in ETH.
-    *                               `false` if the current highest bid is in
+    *                               `false` if the current highest bid is in an
     *                               IERC20 token.
     * @param nft                    Listed NFT.
-    * @param id                     NFT id.
-    * @param minPrice               Least price acceptable for the NFT in ETH.
+    * @param id                     NFT ID.
+    * @param minPrice               Least price acceptable for the NFT auction in ETH.
     * @param highestBid             Current highest bid amount in ETH (Token bids are converted to ETH).
     * @param auctionStart           Start time of auction.
     * @param auctionEnd             End time of auction.
@@ -62,16 +63,16 @@ interface IHemifyAuctionV1 {
 
     /**
     * @dev Emitted when a new bid is made with ETH.
-    * @param auctionId  Id of auction.
+    * @param auctionId  ID of auction.
     * @param amount     Amount of ETH bid.
     */
     event Bid(uint256 indexed auctionId, uint256 indexed amount);
 
     /**
-    * @dev Emitted when a new bid is made with a token.
-    * @param auctionId  Id of auction.
+    * @dev Emitted when a new bid is made with an IERC20 token.
+    * @param auctionId  ID of auction.
     * @param token      IERC20 token.
-    * @param amount     Amount of ETH bid.
+    * @param amount     Amount of token bid.
     */
     event Bid(
         uint256 indexed auctionId,
@@ -83,7 +84,7 @@ interface IHemifyAuctionV1 {
     * @dev Emitted when a new NFT is listed for auction.
     * @param lister     Address listing NFT for auction.
     * @param nft        NFT address.
-    * @param id         NFT id.
+    * @param id         NFT ID.
     * @param endDate    End date of auction.
     */
     event Listed(
@@ -95,7 +96,7 @@ interface IHemifyAuctionV1 {
 
     /**
     * @dev Emitted when an auction is resolved.
-    * @param id         NFT id.
+    * @param id Auction ID.
     */
     event Resolved(uint256 indexed id);
 
@@ -103,15 +104,15 @@ interface IHemifyAuctionV1 {
     error AuctionNotLiveOrDormant();
     error AuctionStillLive();
     error AuctionStillLiveOrClaimed();
-    error BidRejcted();
     error BiddingStarted();
+    error BidRejcted();
     error CantCancel();
     error CantCancelHighestBid();
     error EndTimeLesserThanStartTime();
     error LowBid();
-    error NotLive();
     error NotAuctionOwner();
     error NotAuctionWinner();
+    error NotLive();
     error NotOwnerOrAuthorized();
     error NotSent();
     error OwnerBid();
@@ -121,9 +122,7 @@ interface IHemifyAuctionV1 {
     error ZeroPrice();
     error ZeroRefund();
 
-    /**
-    * @notice All functions here are documented in the `Auction` contract.
-    */
+    /// @notice All functions here are documented in the `HemifyAuction` contract.
     function list(
         IERC721 _nft,
         uint256 _id,

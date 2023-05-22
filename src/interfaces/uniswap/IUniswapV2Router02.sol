@@ -4,7 +4,7 @@ pragma solidity 0.8.19;
 /**
 * @title IUniswapV2Router02
 * @author Uniswap (https://uniswap.org).
-* @dev Culled from Uniswap's `IUniswapV2Router02` interface contract, (http://rb.gy/7t9er).
+* @dev Culled from Uniswap's `IUniswapV2Router02` interface contract from GitHub, (http://rb.gy/7t9er).
 */
 
 interface IUniswapV2Router02 {

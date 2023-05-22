@@ -6,10 +6,17 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /**
 * @title IHemifyExchange
 * @author fps (@0xfps).
-* @dev Interface controlling HemifyExchange.
+* @custom:version 1.0.0
+* @dev Interface controlling `HemifyExchange`.
 */
 
 interface IHemifyExchange {
+    /// @dev Emitted on every successful swap.
+    /// @param token        IERC20 token.
+    /// @param amountIn     Amount of token sent.
+    /// @param amountOut    Amount of ETH taken out.
+    event Swap(IERC20 token, uint256 amountIn, uint256 amountOut);
+
     error NotAllowedToken();
     error NotSwapped();
 

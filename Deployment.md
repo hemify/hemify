@@ -1,17 +1,20 @@
-# Deployments
-- Deploy Treasury
-- Deploy Escrow
-- Deploy Auction
-- Deploy Swap
+# Deployment Steps
+- Deploy HemifyTreasury
+- Deploy HemifyEscrow
+- Deploy HemifyAuction
+- Deploy HemifySwap
+- Deploy HemifyWager
 
--> Treasury.
-  - allow() Auction.
-  - allow() Swap.
+-> HemifyTreasury.
+  - allow() HemifyAuction.
+  - allow() HemifySwap.
+  - allow() HemifyWager.
 
--> Escrow.
-  - allow() Auction.
-  - allow() Swap.
+-> HemifyEscrow.
+  - allow() HemifyAuction.
+  - allow() HemifySwap.
+  - allow() HemifyWager.
 
-
-# Independent
-- Control
+# Independent (Deploy First)
+- HemifyControl
+- HemifyExchange
