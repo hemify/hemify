@@ -8,9 +8,10 @@ import {IUniswapV2Router02} from "../../interfaces/uniswap/IUniswapV2Router02.so
 /**
 * @title HemifyExchange
 * @author fps (@0xfps).
+* @custom:version 1.0.0
 * @dev  HemifyExchange, a small exchange contract that swaps `USDC` and `USDT` to
 *       `ETH` via `WETH`. This contract will allow anyone to use it for swaps. It
-*       is not restricted to only Hemify contracts.
+*       is not restricted to only `Hemify` contracts.
 *       Swappers approve this contract and deposit their tokens to it for the swap,
 *       of course, some tax (undecided) is to be taken.
 */
@@ -33,10 +34,10 @@ contract HemifyExchange is IHemifyExchange {
 
     /**
     * @dev Swaps token(`USDC` or `USDT`) for ETH. Any resulting ETH is sent to `from`.
-    * @param from     Swapper.
-    * @param token    Token(`USDC` or `USDT`).
-    * @param amount   Amount of tokens to be swapped.
-    * @return bool    Swap status.
+    * @param from   Swapper.
+    * @param token  Token(`USDC` or `USDT`).
+    * @param amount Amount of tokens to be swapped.
+    * @return bool Swap status.
     */
     function swapToETH(address from, IERC20 token, uint256 amount) public returns (bool) {
         if ((token != IERC20(USDC)) && (token != IERC20(USDT))) revert NotAllowedToken();
@@ -63,7 +64,7 @@ contract HemifyExchange is IHemifyExchange {
     * @param _path      Swap path, last index, `_path[_path.length - 1]` must be `WETH`.
     * @param _amount    Amount of `_path[0]` sent in.
     * @param _to        Address receiving `ETH`.
-    * @return bool      Status ensuring that length of amounts returned by Uniswap is not 0.
+    * @return bool Status ensuring that length of amounts returned by Uniswap is not 0.
     */
     function _swap(address[] memory _path, uint256 _amount, address _to)
         internal
