@@ -10,6 +10,7 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 /**
 * @title HemifyWager
 * @author fps (@0xfps).
+* @custom:version 1.0.0
 * @dev  HemifyWager contract.
 *       Consider this contract as the financial bank of a betting
 *       frontend, this contract simply takes in wagers from addresses
@@ -45,7 +46,7 @@ contract HemifyWager is IHemifyWager, Ownable2Step {
     {
         if ((token != USDC) && (token != USDT)) revert NotAllowedToken();
 
-        /// @dev `msg.sender` will approve HemifyTreasury.
+        /// @dev `msg.sender` will approve `HemifyTreasury`.
         if (!treasury.deposit(from, token, amount)) revert NotDeposited();
 
         return true;
@@ -55,7 +56,7 @@ contract HemifyWager is IHemifyWager, Ownable2Step {
     * @dev Makes payment to winning wager address `to`.
     * @param token  `USDC` or `USDT`.
     * @param to     Address receiving wager payment.
-    * @param amount Amount of tokens to wager with.
+    * @param amount Amount of tokens to pay `to`.
     * @return bool Payment status.
     */
     function payWager(IERC20 token, address to, uint256 amount)

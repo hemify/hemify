@@ -3,11 +3,11 @@ pragma solidity 0.8.19;
 
 import {AggregatorV3Interface}
     from "chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-import {IHemifyControl} from "../../interfaces/IHemifyControl.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {IHemifyEscrow} from "../../interfaces/IHemifyEscrow.sol";
 import {IHemifyAuctionV1} from "../../interfaces/IHemifyAuctionV1.sol";
+import {IHemifyControl} from "../../interfaces/IHemifyControl.sol";
+import {IHemifyEscrow} from "../../interfaces/IHemifyEscrow.sol";
 import {IHemifyTreasury} from "../../interfaces/IHemifyTreasury.sol";
 
 import {PriceChecker} from "../utils/PriceChecker.sol";
@@ -18,8 +18,7 @@ import {Taxes} from "../utils/Taxes.sol";
 * @title HemifyAuctionV1.
 * @author fps (@0xfps).
 * @dev  Core Auction Contract.
-* @custom:owner     BotBuddyz.
-* @custom:version   0.0.1.
+* @custom:version 1.0.0
 * @notice   NFT Auction contract. NFTs are listed by the owner or an approved
 *           personnel via the `list()` function. This will return the `id` of the
 *           auction. The NFT is sent to the `HemifyEscrow` contract for the duration
@@ -43,7 +42,7 @@ import {Taxes} from "../utils/Taxes.sol";
 *           Bids can be cancelled by the bidder and their funds restored to them.
 *
 *           Auction owner can resolve the auction after the auction time has passed. The winning
-*           bid is sent to the auction owner after 1% taxes have been deducted. The NFT is
+*           bid is sent to the auction owner after 1% tax has been deducted. The NFT is
 *           then claimable by the winner of the auction. Any bid made after the auction end
 *           date has passed is reverted.
 *
@@ -82,12 +81,12 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
         treasury = IHemifyTreasury(_treasury);
     }
 
-    /// @dev Handle incoming funds by sending them to treasury.
+    /// @dev Handle any incoming funds by sending them to `HemifyTreasury`.
     receive() external payable {
         treasury.deposit{value: msg.value}();
     }
 
-    /// @dev Handle incoming funds by sending them to treasury.
+    /// @dev Handle any incoming funds by sending them to `HemifyTreasury`.
     fallback() external payable {
         treasury.deposit{value: msg.value}();
     }
@@ -109,8 +108,8 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
     * @param _minPrice      Minimum price for auction bids.
     * @param _auctionStart  Auction start time.
     * @param _auctionEnd    Auction end time.
-    * @return uint256       Auction id.
-    * @return bool          Auction creation status.
+    * @return uint256   Auction id.
+    * @return bool      Auction creation status.
     */
     function list(
         IERC721 _nft,
@@ -159,21 +158,22 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
     /**
     * @dev Allows `msg.sender` to make an ETH bid on an existing auction.
     * @notice   Allows anyone to make an ETH bid on an existing auction.
-    *           Auction must exist and will be LIVE.
+    *           Auction must exist and will be `LIVE`.
     *           Bids must be higher than `minPrice` (for first bid) and
     *           `highestBid` (for subsequent bids).
     *           Auction owners cannot bid on their auctions.
     *           If the current ETH is > the highest bid, it will set
-    *           `highestBidIsInETH` to true and set the `highestBidToken` to `address(0)`,
+    *           `highestBidIsInETH` to `true` and set the `highestBidToken` to `address(0)`,
     *           and delete the `highestBidTokenAmount`.
     *           It doesn't delete or refund the previous highest bid from the mapping.
     *           The bidder of the previous highest bid can always cancel their bid as long as
-    *           auction is LIVE.
-    * @param auctionId  ID of the auction to bid on.
+    *           auction is `LIVE` or recover their lost bid after the auction has been `RESOLVED` or
+    *           `CLAIMED`.
+    * @param auctionId ID of the auction to bid on.
     * @return bool Bid status.
     */
     function bid(uint256 auctionId) public payable returns (bool) {
-        /// @dev    Inexistent auctions will have `auctionOwner` as address(0), which
+        /// @dev    Inexistent auctions will have `auctionOwner` as `address(0)`, which
         ///         will return `false` by
         ///         `else if (_auction.auctionOwner == address(0)) return false;`.
         ///         Check out function for other checks.
@@ -185,7 +185,7 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
         if ((msg.value < _auction.minPrice) || (msg.value <= _auction.highestBid))
             revert LowBid();
 
-        /// @dev At this point, the `msg.value` is > the highest bid, and minPrice, and is in ETH.
+        /// @dev At this point, the `msg.value` is > the highest bid, and `minPrice`, and is in ETH.
         _auction.highestBidIsInETH = true;
         _auction.highestBid = msg.value;
         _auction.auctionWinner = msg.sender;
@@ -210,15 +210,16 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
     *           Auction must exist and will be LIVE.
     *           Tokens will only be approved tokens in `HemifyControl`.
     *           All token amount sent will be evaluated to their ETH worth at
-    *           the time of bidding (and `bid()` logic runs).
+    *           the time of bidding.
     *           Bids must be higher than `minPrice` (for first bid) and
     *           `highestBid` (for subsequent bids).
     *           If the current ETH is > the highest bid, it will set
-    *           `highestBidIsInETH` to false and set the `highestBidToken` to token,
-    *           and set the `highestBidTokenAmount` to the amount of tokens sent.
+    *           `highestBidIsInETH` to `false` and set the `highestBidToken` to `token`,
+    *           and set the `highestBidTokenAmount` to the `amount` of tokens sent.
     *           It doesn't delete or refund the previous highest bid from the mapping.
     *           The bidder of the previous highest bid can always cancel their bid as long as
-    *           auction is LIVE.
+    *           auction is `LIVE` or recover their lost bid after the auction has been `RESOLVED` or
+    *           `CLAIMED`.
     * @param auctionId  ID of the auction to bid on.
     * @param token      IERC20 token to bid with.
     * @param amount     Amount of tokens to send.
@@ -228,7 +229,7 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
         public
         returns (bool)
     {
-        /// @dev    Inexistent auctions will have `auctionOwner` as address(0), which
+        /// @dev    Inexistent auctions will have `auctionOwner` as `address(0)`, which
         ///         will return `false` by
         ///         `else if (_auction.auctionOwner == address(0)) return false;`.
         if (!_canBid(auctionId)) revert BidRejcted();
@@ -243,7 +244,7 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
         if ((ethEquivalent < _auction.minPrice) || (ethEquivalent <= _auction.highestBid))
             revert LowBid();
 
-        /// @dev    At this point, the `ethEquivalent` is > the highest bid, and minPrice,
+        /// @dev    At this point, the `ethEquivalent` is > the highest bid, and `minPrice`,
         ///         and is in a known token.
         _auction.highestBidIsInETH = false;
         _auction.highestBid = ethEquivalent;
@@ -267,7 +268,7 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
     * @dev Allows `msg.sender` to cancel bid made with ETH.
     * @notice   Allows caller to cancel and reclaim all their bid funds.
     *           Caller must not be the current highest bidder, and auction must
-    *           be LIVE.
+    *           be `LIVE`.
     * @param auctionId ID of auction.
     * @return bool State of cancel.
     */
@@ -289,10 +290,10 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
     }
 
     /**
-    * @dev Allows `msg.sender` to cancel bid made with ETH.
+    * @dev Allows `msg.sender` to cancel bid made with an IERC20 token.
     * @notice   Allows caller to cancel and reclaim all their bid token funds.
     *           Caller must not be the current highest bidder, and auction must
-    *           be LIVE.
+    *           be `LIVE`.
     * @param auctionId ID of auction.
     * @return bool State of cancel.
     */
@@ -316,9 +317,10 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
     /**
     * @dev Allows auction owner to resolve auction and stop subsequent bids.
     * @notice   If the auction winner is the zero address, i.e. there have been
-    *           no bids, it is advised to use `removeAuction()` instead.
+    *           no bids, it is advised to use `removeAuction()` instead as this
+    *           will revert.
     *           This function will send the token or ETH highest bid to the
-    *           auction owner and set the auction state to RESOLVED.
+    *           auction owner and set the auction state to `RESOLVED`.
     * @param auctionId ID of auction.
     * @return bool Resolution state.
     */
@@ -366,8 +368,8 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
 
     /**
     * @dev Allows the auction winner to claim their NFT.
-    * @notice   Auction rewards can be claimed only when they're RESOLVED,
-    *           after which, it's set to CLAIMED.
+    * @notice   Auction rewards can be claimed only when they're `RESOLVED`,
+    *           after which, it's set to `CLAIMED`.
     * @param auctionId ID of auction.
     * @return bool Claim state.
     */
@@ -468,14 +470,14 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
     /**
     * @dev Returns the highest bid for `auctionId`.
     * @param auctionId ID of auction.
-    * @return highestBidIsInETH     True if the current highest bid is in ETH,
-    *                               false otherwise.
-    * @return highestBidToken       Address of highest bid token, address(0) if
+    * @return highestBidIsInETH     `True` if the current highest bid is in ETH,
+    *                               `false` otherwise.
+    * @return highestBidToken       Address of highest bid token, `address(0)` if
     *                               above is true, valid if false.
     * @return highestBid            ETH value or ETH equivalent (for tokens) of
     *                               the highest bid.
     * @return highestBidTokenAmount Actual amount of token bid if `highestBidIsInETH`
-    *                               is false.
+    *                               is `false`.
     */
     function getHighestBid(uint256 auctionId) public view returns (
         bool highestBidIsInETH,
@@ -484,7 +486,7 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
         uint256 highestBidTokenAmount
     )
     {
-        /// @dev Allowed for all live auctions.
+        /// @dev Allowed for all `LIVE` auctions.
         Auction memory _auction = auctions[auctionId];
         if (_auction.state != AuctionState.LIVE) revert NotLive();
 
@@ -509,7 +511,7 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
     /**
     * @dev Checks to verify if `auctionId` can be bid on.
     * @param _auctionId ID of auction.
-    * @return bool True if the auction can be bid on, false if otherwise.
+    * @return bool `True` if the auction can be bid on, `false` if otherwise.
     */
     function _canBid(uint256 _auctionId) private returns (bool) {
         Auction memory _auction = auctions[_auctionId];
