@@ -122,11 +122,7 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
         returns (uint256, bool)
     {
         address nftOwner = _nft.ownerOf(_id);
-        if (
-            (nftOwner != msg.sender) &&
-            (_nft.getApproved(_id) != msg.sender) &&
-            (!_nft.isApprovedForAll(nftOwner, msg.sender))
-        ) revert NotOwnerOrAuthorized();
+        if ((nftOwner != msg.sender)) revert NotOwnerOrAuthorized();
 
         if (_minPrice == 0) revert ZeroPrice();
 
