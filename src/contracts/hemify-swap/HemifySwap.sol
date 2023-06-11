@@ -90,7 +90,7 @@ contract HemifySwap is IHemifySwap {
         if (!control.isSupportedForSwap(_fromSwap)) revert NFTNotSupported();
         if (!control.isSupportedForSwap(_toSwap)) revert NFTNotSupported();
 
-        if (!_isOwnerOrAuthorized(_fromSwap, _fromId, msg.sender))
+        if (_fromSwap.ownerOf(_fromId) != msg.sender)
             revert NotOwnerOrAuthorized();
 
         if (_markUp > markUpLimit) revert HighMarkUp();
@@ -162,8 +162,7 @@ contract HemifySwap is IHemifySwap {
         ///         because, this function depends on existing `orderId`s generated
         ///         and existing, as a result of `placeSwapOrder()`, and the checks
         ///         exist there.
-
-        if (!_isOwnerOrAuthorized(_fromSwap, _fromId, msg.sender))
+        if (_fromSwap.ownerOf(_fromId) != msg.sender)
             revert NotOwnerOrAuthorized();
 
         /// @dev This hash is configured to match the hash in the `placeSwapOrder()`.
@@ -245,32 +244,6 @@ contract HemifySwap is IHemifySwap {
 
         Order memory order = orders[_orderId];
         return order;
-    }
-
-    /**
-    * @dev Returns true or false if `_owner` is owner of NFT `_nft`'s id `_id`.
-    * @param _nft   NFT Address.
-    * @param _id    NFT ID.
-    * @param _owner `msg.sender` from `placeSwapOrder()` and `completeSwapOrder()`.
-    * @return bool True or false.
-    */
-    function _isOwnerOrAuthorized(
-        IERC721 _nft,
-        uint256 _id,
-        address _owner
-    )
-        internal
-        view
-        returns (bool)
-    {
-        address nftOwner = _nft.ownerOf(_id);
-        if (
-            (nftOwner != _owner) &&
-            (_nft.getApproved(_id) != _owner) &&
-            (!_nft.isApprovedForAll(nftOwner, _owner))
-        ) return false;
-
-        return true;
     }
 
     /**

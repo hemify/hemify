@@ -51,13 +51,9 @@ contract Escrow is IHemifyEscrow, IERC721Receiver, Gated, ReentrancyGuard {
         // All NFTs are supported for auctions.
         address nftOwner = nft.ownerOf(id);
 
-        if (
-            (nftOwner != from) &&
-            (nft.getApproved(id) != from) &&
-            (!nft.isApprovedForAll(nftOwner, from))
-        ) revert NotOwnerOrAuthorized();
+        if ((nftOwner != from)) revert NotOwnerOrAuthorized();
 
-        /// @dev    Caller must set `isApprovedForAll()` to `true` for
+        /// @dev    `from` must set `isApprovedForAll()` to `true` for
         ///         for this contract for this call to be successful.
         nft.safeTransferFrom(from, address(this), id);
 
