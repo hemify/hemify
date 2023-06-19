@@ -6,7 +6,7 @@ import {IHemifyWager} from "../../interfaces/IHemifyWager.sol";
 import {IHemifyTreasury} from "../../interfaces/IHemifyTreasury.sol";
 
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
-import {WagerTax} from "../utils/Taxes/WagerTax.sol";
+import {WagerTax} from "../utils/taxes/WagerTax.sol";
 
 /**
 * @title HemifyWager

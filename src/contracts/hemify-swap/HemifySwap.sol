@@ -7,7 +7,7 @@ import {IHemifyEscrow} from "../../interfaces/IHemifyEscrow.sol";
 import {IHemifySwap} from "../../interfaces/IHemifySwap.sol";
 import {IHemifyTreasury} from "../../interfaces/IHemifyTreasury.sol";
 
-import {SwapTax} from "../utils/Taxes/SwapTax.sol";
+import {SwapTax} from "../utils/taxes/SwapTax.sol";
 
 /**
 * @title HemifySwap

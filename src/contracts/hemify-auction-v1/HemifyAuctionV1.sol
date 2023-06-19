@@ -12,7 +12,7 @@ import {IHemifyTreasury} from "../../interfaces/IHemifyTreasury.sol";
 
 import {PriceChecker} from "../utils/PriceChecker.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {AuctionTax} from "../utils/Taxes/AuctionTax.sol";
+import {AuctionTax} from "../utils/taxes/AuctionTax.sol";
 
 /**
 * @title HemifyAuctionV1.
