@@ -6,6 +6,7 @@ import {IHemifyWager} from "../../interfaces/IHemifyWager.sol";
 import {IHemifyTreasury} from "../../interfaces/IHemifyTreasury.sol";
 
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
+import {WagerTax} from "../utils/taxes/WagerTax.sol";
 
 /**
 * @title HemifyWager
@@ -20,7 +21,7 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 *       Fees are to be considered soon.
 */
 
-contract HemifyWager is IHemifyWager, Ownable2Step {
+contract HemifyWager is IHemifyWager, Ownable2Step, WagerTax {
     IHemifyTreasury internal treasury;
 
     IERC20 public constant USDC = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
