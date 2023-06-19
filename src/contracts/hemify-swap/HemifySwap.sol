@@ -7,6 +7,8 @@ import {IHemifyEscrow} from "../../interfaces/IHemifyEscrow.sol";
 import {IHemifySwap} from "../../interfaces/IHemifySwap.sol";
 import {IHemifyTreasury} from "../../interfaces/IHemifyTreasury.sol";
 
+import {SwapTax} from "../utils/Taxes/SwapTax.sol";
+
 /**
 * @title HemifySwap
 * @author fps (@0xfps).
@@ -31,15 +33,12 @@ import {IHemifyTreasury} from "../../interfaces/IHemifyTreasury.sol";
 *           Orders set to `LISTED` can as well be deleted by their 'placer'.
 */
 
-contract HemifySwap is IHemifySwap {
+contract HemifySwap is IHemifySwap, SwapTax {
     IHemifyControl internal control;
     IHemifyEscrow internal escrow;
     IHemifyTreasury internal treasury;
 
-    // Set now, variable later.
-    uint256 public fee = 0.05 ether;
-    // Set now, variable later.
-    uint256 public markUpLimit = 2 ether;
+    uint256 public markUpLimit = 100 ether;
     mapping(bytes32 => Order) private orders;
 
     constructor(

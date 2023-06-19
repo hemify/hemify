@@ -12,7 +12,7 @@ import {IHemifyTreasury} from "../../interfaces/IHemifyTreasury.sol";
 
 import {PriceChecker} from "../utils/PriceChecker.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {Taxes} from "../utils/Taxes.sol";
+import {AuctionTax} from "../utils/Taxes/AuctionTax.sol";
 
 /**
 * @title HemifyAuctionV1.
@@ -50,7 +50,7 @@ import {Taxes} from "../utils/Taxes.sol";
 *           be cancelled, rather, reclaimed.
 */
 
-contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
+contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, AuctionTax {
     IHemifyControl internal control;
     IHemifyEscrow internal escrow;
     IHemifyTreasury internal treasury;
@@ -342,7 +342,7 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
 
             ethBids[auctionId][_auctionWinner] -= payment;
 
-            sent = treasury.sendPayment(_auctionOwner, afterTax(payment));
+            sent = treasury.sendPayment(_auctionOwner, afterAuctionTax(payment));
             if (!sent) revert NotSent();
         }
 
@@ -353,7 +353,7 @@ contract HemifyAuctionV1 is IHemifyAuctionV1, PriceChecker, Taxes {
 
             tokenBids[auctionId][_auctionWinner][paymentToken] -= payment;
 
-            sent = treasury.sendPayment(paymentToken, _auctionOwner, afterTax(payment));
+            sent = treasury.sendPayment(paymentToken, _auctionOwner, afterAuctionTax(payment));
             if (!sent) revert NotSent();
         }
 
