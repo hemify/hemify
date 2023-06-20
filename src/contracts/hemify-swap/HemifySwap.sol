@@ -200,7 +200,7 @@ contract HemifySwap is IHemifySwap, SwapTax {
         if (!swapToReceiver) revert NotSent();
 
         if (_markUp != 0) {
-            (bool payMarkUp, ) = payable(_orderOwner).call{value: _markUp}("");
+            (bool payMarkUp, ) = payable(_orderOwner).call{value: afterSwapTax(_markUp)}("");
             if (!payMarkUp) revert NotSent();
         }
 
