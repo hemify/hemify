@@ -67,7 +67,7 @@ contract HemifyWager is IHemifyWager, Ownable2Step, WagerTax {
     {
         if ((token != USDC) && (token != USDT)) revert NotAllowedToken();
 
-        if (!treasury.sendPayment(token, to, amount)) revert NotPaid();
+        if (!treasury.sendPayment(token, to, afterWagerTax(amount))) revert NotPaid();
 
         return true;
     }
