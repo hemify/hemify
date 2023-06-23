@@ -22,14 +22,14 @@ contract RevokeSwapNFTTest is HemifyControlTest {
     }
 
     function testRevokeExistentNFTByNonOwner(address _addr) public ownerSupport {
-        vm.assume(_addr != address(0));
+        vm.assume(_addr != owner);
         vm.prank(_addr);
         vm.expectRevert();
         hemifyControl.revokeSwapNFT(existentToken);
     }
 
     function testRevokeInexistentNFTByNonOwner(address _addr) public ownerSupport {
-        vm.assume(_addr != address(0));
+        vm.assume(_addr != owner);
         vm.prank(_addr);
         vm.expectRevert();
         hemifyControl.revokeSwapNFT(inexistentToken);
