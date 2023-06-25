@@ -18,7 +18,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 *       `allow`ed by this contract via the `Gated` contract via multi sig.
 */
 
-contract Escrow is IHemifyEscrow, IERC721Receiver, Gated, ReentrancyGuard {
+contract HemifyEscrow is IHemifyEscrow, IERC721Receiver, Gated, ReentrancyGuard {
     /// @dev Initialize protective multi sig of at least 5 addresses.
     /// @param _addresses 5 or more addresses for multi sig protection.
     constructor(address[] memory _addresses)
