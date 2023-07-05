@@ -16,5 +16,21 @@ contract Addresses is Test {
     address john = vm.addr(0x0a);
 
     // For ease of ownership.
-    address owner = vm.addr(0x0b);
+    address cOwner = vm.addr(0x0b);
+    // A random address if you do not remember any of the above addresses.
+    address hacker = vm.addr(0x0c);
+
+    address[] internal addresses_;
+
+    function _setupAddresses(uint8 limit) internal returns (address[] memory) {
+        address[] memory _addresses = new address[](limit);
+
+        for (uint8 i; i != limit; ) {
+            _addresses[i] = vm.addr(block.timestamp * (i + 1));
+            unchecked { ++i; }
+        }
+
+        addresses_ = _addresses;
+        return addresses_;
+    }
 }

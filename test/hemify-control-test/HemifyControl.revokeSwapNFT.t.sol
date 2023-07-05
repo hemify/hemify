@@ -13,7 +13,7 @@ contract RevokeSwapNFTTest is HemifyControlTest {
     IERC721 private inexistentToken = IERC721(vm.addr(0x2468));
 
     modifier ownerSupport() {
-        vm.startPrank(owner);
+        vm.startPrank(cOwner);
         hemifyControl.supportSwapNFT(existentToken);
         vm.stopPrank();
         assertTrue(hemifyControl.isSupportedForSwap(existentToken));
@@ -22,27 +22,27 @@ contract RevokeSwapNFTTest is HemifyControlTest {
     }
 
     function testRevokeExistentNFTByNonOwner(address _addr) public ownerSupport {
-        vm.assume(_addr != owner);
+        vm.assume(_addr != cOwner);
         vm.prank(_addr);
         vm.expectRevert();
         hemifyControl.revokeSwapNFT(existentToken);
     }
 
     function testRevokeInexistentNFTByNonOwner(address _addr) public ownerSupport {
-        vm.assume(_addr != owner);
+        vm.assume(_addr != cOwner);
         vm.prank(_addr);
         vm.expectRevert();
         hemifyControl.revokeSwapNFT(inexistentToken);
     }
 
     function testRevokeInexistentNFTByOwner() public ownerSupport {
-        vm.prank(owner);
+        vm.prank(cOwner);
         hemifyControl.revokeSwapNFT(inexistentToken);
         assertFalse(hemifyControl.isSupportedForSwap(inexistentToken));
     }
 
     function testRevokeExistentNFTByOwner() public ownerSupport {
-        vm.prank(owner);
+        vm.prank(cOwner);
         hemifyControl.revokeSwapNFT(existentToken);
         assertFalse(hemifyControl.isSupportedForSwap(existentToken));
     }

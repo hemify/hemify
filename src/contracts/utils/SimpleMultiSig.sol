@@ -27,14 +27,17 @@ abstract contract SimpleMultiSig {
         uint8 len = uint8(_addresses.length);
         if ((len < 5) || (len > 10)) revert();
 
-        SIZE = len;
-        addresses = _addresses;
+        uint8 j;
 
         for (uint8 i; i != len; ) {
             if (signers[_addresses[i]]) revert MultipleAddresses();
             signers[_addresses[i]] = true;
-            unchecked { ++i; }
+            addresses.push(_addresses[i]);
+            unchecked { ++i; ++j; }
         }
+
+        if ((j < 5) || (j > 10)) revert();
+        SIZE = j;
     }
 
     modifier allSigned() {

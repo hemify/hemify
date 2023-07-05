@@ -15,7 +15,7 @@ contract SupportSwapNFTTest is HemifyControlTest {
     )
         public
     {
-        vm.assume(_addr != owner);
+        vm.assume(_addr != cOwner);
         vm.assume(_token != address(0));
 
         IERC721 token = IERC721(_token);
@@ -28,7 +28,7 @@ contract SupportSwapNFTTest is HemifyControlTest {
     function testSupportSwapNFTByOwnerZeroAddress() public {
         IERC721 token = IERC721(address(0));
 
-        vm.prank(owner);
+        vm.prank(cOwner);
         vm.expectRevert();
         hemifyControl.supportSwapNFT(token);
     }
@@ -37,7 +37,7 @@ contract SupportSwapNFTTest is HemifyControlTest {
         vm.assume(_token != address(0));
         IERC721 token = IERC721(_token);
 
-        vm.prank(owner);
+        vm.prank(cOwner);
         hemifyControl.supportSwapNFT(token);
         assertTrue(hemifyControl.isSupportedForSwap(token));
     }
