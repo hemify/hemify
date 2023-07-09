@@ -16,7 +16,7 @@ contract SupportTokenTest is HemifyControlTest {
     )
         public
     {
-        vm.assume(_addr != owner);
+        vm.assume(_addr != cOwner);
         vm.assume(_token != address(0));
         vm.assume(_agg != address(0));
 
@@ -35,7 +35,7 @@ contract SupportTokenTest is HemifyControlTest {
         IERC20 token = IERC20(address(0));
 
         vm.expectRevert();
-        vm.prank(owner);
+        vm.prank(cOwner);
         hemifyControl.supportToken(token, agg);
     }
 
@@ -46,7 +46,7 @@ contract SupportTokenTest is HemifyControlTest {
         IERC20 token = IERC20(_token);
 
         vm.expectRevert();
-        vm.prank(owner);
+        vm.prank(cOwner);
         hemifyControl.supportToken(token, agg);
     }
 
@@ -62,7 +62,7 @@ contract SupportTokenTest is HemifyControlTest {
         AggregatorV3Interface agg = AggregatorV3Interface(_agg);
         IERC20 token = IERC20(_token);
 
-        vm.prank(owner);
+        vm.prank(cOwner);
         hemifyControl.supportToken(token, agg);
 
         assertTrue(hemifyControl.isSupported(token));

@@ -14,7 +14,7 @@ contract RevokeTokenTest is HemifyControlTest {
     IERC20 private inexistentToken = IERC20(vm.addr(0x2468));
 
     modifier ownerSupport() {
-        vm.startPrank(owner);
+        vm.startPrank(cOwner);
         hemifyControl.supportToken(existentToken, agg);
         vm.stopPrank();
         assertTrue(hemifyControl.isSupported(existentToken));
@@ -28,19 +28,19 @@ contract RevokeTokenTest is HemifyControlTest {
         hemifyControl.revokeToken(existentToken);
     }
 
-    function testRevokeInexistentTokenByNonOwner(address _token) public ownerSupport {
+    function testRevokeInexistentTokenByNonOwner() public ownerSupport {
         vm.prank(alice);
         vm.expectRevert();
         hemifyControl.revokeToken(inexistentToken);
     }
 
-    function testRevokeInexistentToken(address _token) public ownerSupport {
-        vm.prank(owner);
+    function testRevokeInexistentToken() public ownerSupport {
+        vm.prank(cOwner);
         hemifyControl.revokeToken(inexistentToken);
     }
 
-    function testRevokeToken(address _token) public ownerSupport {
-        vm.prank(owner);
+    function testRevokeToken() public ownerSupport {
+        vm.prank(cOwner);
         hemifyControl.revokeToken(existentToken);
         assertFalse(hemifyControl.isSupported(existentToken));
     }

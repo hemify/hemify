@@ -13,7 +13,7 @@ contract HemifyControlTest is Test, Addresses, Fork {
     IHemifyControl internal hemifyControl;
 
     function setUp() public {
-        vm.prank(owner);
+        vm.prank(cOwner);
         hemifyControl = IHemifyControl(new HemifyControl());
     }
 
