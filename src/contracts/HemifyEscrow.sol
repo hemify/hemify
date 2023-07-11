@@ -91,7 +91,7 @@ contract HemifyEscrow is IHemifyEscrow, IERC721Receiver, Gated, ReentrancyGuard 
         if (to == address(0)) revert ZeroAddress();
         if (to == address(this)) revert TokenAlreadyOwned();
 
-        nft.transferFrom(address(this), to, id);
+        nft.safeTransferFrom(address(this), to, id);
 
         assert(nft.ownerOf(id) == to);
 
