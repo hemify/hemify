@@ -5,12 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3944fe08-65ba-4f03-9463-766a2133401a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/test/hemify-escrow-test/HemifyEscrow.depositNFT.t.sol" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/hemify-escrow-test/HemifyEscrow.sendNFT.t.sol" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/tokens/ERC20Test.t.sol" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/tokens/ERC721Test.t.sol" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/hemify-treasury-test/HemifyTreasury.depositETH.t.sol" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/hemify-treasury-test/HemifyTreasury.depositToken.t.sol" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/hemify-treasury-test/HemifyTreasury.sendPaymentETH.t.sol" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/hemify-treasury-test/HemifyTreasury.sendPaymentToken.t.sol" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/hemify-treasury-test/HemifyTreasury.t.sol" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/hemify-treasury-test/HemifyTreasury.withdrawETH.t.sol" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/hemify-treasury-test/HemifyTreasury.withdrawToken.t.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/contracts/HemifyEscrow.sol" beforeDir="false" afterPath="$PROJECT_DIR$/src/contracts/HemifyEscrow.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/hemify-escrow-test/HemifyEscrow.t.sol" beforeDir="false" afterPath="$PROJECT_DIR$/test/hemify-escrow-test/HemifyEscrow.t.sol" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

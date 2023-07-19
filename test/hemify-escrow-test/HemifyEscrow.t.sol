@@ -49,7 +49,7 @@ contract HemifyEscrowTest is Test, Addresses {
 
         vm.expectRevert();
         vm.prank(cOwner);
-        hemifyEscrow = HemifyEscrow(new HemifyEscrow(_newAddresses));
+        hemifyEscrow = new HemifyEscrow(_newAddresses);
     }
 
     function _allow(address _address, uint8 _num) internal {
