@@ -20,14 +20,14 @@ contract HemifyExchange is IHemifyExchange {
     address internal constant ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
     /// @notice MAINNET ADDRESSES.
-    // address internal constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
-    // address internal constant USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
-    // address internal constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address internal constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+    address internal constant USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
+    address internal constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
     /// @notice GOERLI ADDRESSES.
-    address internal constant USDC = 0xd35CCeEAD182dcee0F148EbaC9447DA2c4D449c4;
-    address internal constant USDT = 0x509Ee0d083DdF8AC028f2a56731412edD63223B9;
-    address internal constant WETH = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
+    /// address internal constant USDC = 0xd35CCeEAD182dcee0F148EbaC9447DA2c4D449c4;
+    /// address internal constant USDT = 0x509Ee0d083DdF8AC028f2a56731412edD63223B9;
+    /// address internal constant WETH = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
 
     IUniswapV2Router02 internal router;
 
