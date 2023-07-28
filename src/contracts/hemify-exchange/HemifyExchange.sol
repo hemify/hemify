@@ -51,9 +51,11 @@ contract HemifyExchange is IHemifyExchange {
         uint256 prevBal = token.balanceOf(address(this));
 
         /// @dev `from` must approve this contract to handle `amount` amount of tokens.
-        token.transferFrom(msg.sender, address(this), amount);
+        token.transferFrom(from, address(this), amount);
 
         assert((token.balanceOf(address(this)) - prevBal) >= amount);
+
+        token.approve(ROUTER, amount);
 
         bool swapped;
 
