@@ -11,6 +11,7 @@ abstract contract SwapTax {
     // Set now, variable later.
     uint256 public fee = 0.005 ether;
 
+    // 0.5%, so denominator will be 1000 during calculations.
     uint256 internal swapTax = 5;
     address internal taxer;
 

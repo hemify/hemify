@@ -38,7 +38,7 @@ contract PriceCheckerTest is Test, Addresses {
         ethValue;
     }
 
-    function testConvertToETHForValidDAI() public {
+    function testConvertToETHForValidDAI() public view {
         uint256 ethValue = implementer.convertToETH(aggDAI, token, amount);
         ethValue;
     }
